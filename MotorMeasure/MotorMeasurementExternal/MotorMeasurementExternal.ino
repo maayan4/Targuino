@@ -1,23 +1,27 @@
 //DEGUG MODE
 const boolean DEBUG = 1;
 
-//Pins
-const int ledPin=13;
-const int potHPin = A6;
-const int potLPin = A12;
-const int pwmHPin = 8;
-const int pwmLPin = 9; 
-const int CSPin = A1;
-const int dirPin = 5;
-const int FF1 = 2;
-const int FF2 = 3;
+//Digital Pins
+const int FF1 = 51;
+const int FF2 = 53;
+const int RESET=49;
+const int pwmHPin = 46;
+const int pwmLPin = 44; 
+const int dirPin =43 ;
+
 const int SENSOR=21;
-const int PSpin=A15;
+const int ledPin=13;
+
+//Analog Pins
+const int PSpin=A12;
+const int CSPin = A13;
+const int potHPin = A14;
+const int potLPin = A15;
 
 //Temporary variables for the loop function
 int potHValue = 0;  // variable to store the value coming from the sensor
 int potLValue = 1023;
-int pwmHValue = 0;
+int pwmHValue = 60;
 int pwmLValue = 0;
 boolean DIR=0; // 1 - clockwise, 0 - counter-clockwise
 boolean STOPGO=0; //0- stop, 1-go
@@ -42,10 +46,10 @@ int sensorValue = 0;
 float current = 0;
 
 void setup() {
-  attachInterrupt(3,IncrRevolution,RISING); //interrupt 3 is for pin number 20
+  attachInterrupt(2,IncrRevolution,RISING); //interrupt 2 is for pin number 21
   interrupts();
   PreviousInterruptTime=millis();
-  Serial.begin(115200);
+  Serial.begin(9600);
   pinMode(ledPin,OUTPUT);
   pinMode(pwmHPin, OUTPUT); 
   pinMode(pwmLPin, OUTPUT);
@@ -53,10 +57,6 @@ void setup() {
   pinMode(FF1, INPUT); 
   pinMode(FF2, INPUT); 
   pinMode(SENSOR,INPUT);
-  
-  Serial.println('---');
-  Serial.println('---');
-  Serial.println('---');
 }
 
 void loop() {
@@ -66,11 +66,11 @@ void loop() {
     //Serial.print("sent byte: ");
     //Serial.println(inByte);
     switch(inByte){
-      case 0: DIR=0; break;
-      case 1: DIR=1; break;
+      case 9: DIR=0; break;
+      case 8: DIR=1; break;
       case 2: STOPGO=0; break;
       case 3: STOPGO=1; break;
-      default: break; 
+      default: pwmHValue=inByte; break; 
   }
   }
   
@@ -83,10 +83,10 @@ void loop() {
   //first read the feedback (speed measurment) and then decide on the input
   
   //feedback - measure speed
-  if(Revolutions>3){
+  //if(Revolutions>3){
     vAngular=MeasureVelocity();
     vLinear=vAngular*ropeRadius/100; //divide by 100 to get [m/s]
-  }
+  //}
   
   // read the value from the potentiometer and update PWM
   //potHValue = analogRead(potHPin);
@@ -95,16 +95,18 @@ void loop() {
   pwmLValue=254;
   pwmHValue=i;
   j++;
-  if(j>100){
+  if(j>20){
     i++;
     j=0;
   }
- if(i>254){
+ if(i>170){
   i=0;
  } 
   
   //pwmHValue = map(potHValue, 0, 1023, 0, 254);
   //pwmLValue = map(potLValue, 0, 1023, 0, 254);
+  
+  
   float pwmHPer = pwmHValue * (100.0/254.0);
   float pwmLPer = pwmLValue * (100.0/254.0);
    
@@ -124,15 +126,15 @@ void loop() {
     Serial.print("PH");
     Serial.print(pwmHPer);
     Serial.print(" ");
-    //Serial.print("PL");
-    //Serial.print(pwmLPer);
-    //Serial.print(" ");
-    //Serial.print("R");
-    //Serial.print(Revolutions);
-    //Serial.print(" ");
-    //Serial.print("DT");
-    //Serial.print(deltaT);
-    //Serial.print(" ");
+    Serial.print("PL");
+    Serial.print(pwmLPer);
+    Serial.print(" ");
+    Serial.print("R");
+    Serial.print(Revolutions);
+    Serial.print(" ");
+    Serial.print("DT");
+    Serial.print(deltaT);
+    Serial.print(" ");
     Serial.print("LV");
     Serial.print(vLinear);
     Serial.print(" ");
@@ -170,8 +172,6 @@ void loop() {
   }
   }
 }
-
-
 
 void checkfault(){
   if (digitalRead(FF1) && digitalRead(FF2)) faultflag=3;

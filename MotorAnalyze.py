@@ -4,8 +4,8 @@
 from __future__ import print_function
 import serial, io, datetime
 
-addr  = '/dev/ttyACM2'  # serial port to read data from
-baud  = 115200            # baud rate for serial port
+addr  = '/dev/ttyACM0'  # serial port to read data from
+baud  = 9600            # baud rate for serial port
 fname = 'log' + str(datetime.datetime.today())[0:19] + '.dat'   # log file to save data in
 fmode = 'a'             # log file mode = append
 

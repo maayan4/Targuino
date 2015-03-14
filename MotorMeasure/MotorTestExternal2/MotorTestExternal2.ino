@@ -26,6 +26,8 @@ int pwmLValue = 0;
 boolean DIR=0; // 1 - clockwise, 0 - counter-clockwise
 boolean STOPGO=0; //0- stop, 1-go
 
+int i=0; int j=0; //for the modeling "for" loop inside loop()
+
 //Constants
 const float pi = 3.14159;
 const float radius = 6.5; //[cm] radius of the wheel. represents velocity at the end point
@@ -44,7 +46,7 @@ int sensorValue = 0;
 float current = 0;
 
 void setup() {
-  attachInterrupt(3,IncrRevolution,RISING); //interrupt 3 is for pin number 20
+  attachInterrupt(2,IncrRevolution,RISING); //interrupt 2 is for pin number 21
   interrupts();
   PreviousInterruptTime=millis();
   Serial.begin(115200);
@@ -55,6 +57,10 @@ void setup() {
   pinMode(FF1, INPUT); 
   pinMode(FF2, INPUT); 
   pinMode(SENSOR,INPUT);
+  
+  Serial.println('---');
+  Serial.println('---');
+  Serial.println('---');
 }
 
 void loop() {
@@ -87,10 +93,22 @@ void loop() {
   }
   
   // read the value from the potentiometer and update PWM
-  potHValue =500; //analogRead(potHPin);
-  potLValue = analogRead(potLPin);;
-  pwmHValue = map(potHValue, 0, 1023, 0, 254);
-  pwmLValue = map(potLValue, 0, 1023, 0, 254);
+  //potHValue = analogRead(potHPin);
+  //potLValue = analogRead(potLPin);
+  
+  pwmLValue=254;
+  pwmHValue=i;
+  j++;
+  if(j>100){
+    i++;
+    j=0;
+  }
+ if(i>254){
+  i=0;
+ } 
+  
+  //pwmHValue = map(potHValue, 0, 1023, 0, 254);
+  //pwmLValue = map(potLValue, 0, 1023, 0, 254);
   float pwmHPer = pwmHValue * (100.0/254.0);
   float pwmLPer = pwmLValue * (100.0/254.0);
    
@@ -104,18 +122,21 @@ void loop() {
    current = map(sensorValue, 0, 1023, -3000, 3000);
   
   if (DEBUG){
+    Serial.print("T");
+    Serial.print(millis());
+    Serial.print(" ");
     Serial.print("PH");
     Serial.print(pwmHPer);
     Serial.print(" ");
-    Serial.print("PL");
-    Serial.print(pwmLPer);
-    Serial.print(" ");
-    Serial.print("R");
-    Serial.print(Revolutions);
-    Serial.print(" ");
-    Serial.print("DT");
-    Serial.print(deltaT);
-    Serial.print(" ");
+    //Serial.print("PL");
+    //Serial.print(pwmLPer);
+    //Serial.print(" ");
+    //Serial.print("R");
+    //Serial.print(Revolutions);
+    //Serial.print(" ");
+    //Serial.print("DT");
+    //Serial.print(deltaT);
+    //Serial.print(" ");
     Serial.print("LV");
     Serial.print(vLinear);
     Serial.print(" ");
@@ -133,9 +154,9 @@ void loop() {
     Serial.print(" ");
     Serial.print("PS");
     Serial.print(analogRead(PSpin));
-    Serial.print(" ");
-    Serial.print("DI");
-    Serial.print(DIR);
+    //Serial.print(" ");
+    //Serial.print("DI");
+    //Serial.print(DIR);
     Serial.println("");
  }
   
