@@ -32,7 +32,7 @@ int i=0; int j=0; //for the modeling "for" loop inside loop()
 const float pi = 3.14159;
 const float radius = 6.5; //[cm] radius of the wheel. represents velocity at the end point
 const float ropeRadius=2.23; // [cm] represent velocity where the rope is
-const int numOfMagnets=2; //number of magnets available
+const int numOfMagnets=1; //number of magnets available
 
 //Speed measurment variables
 unsigned long PreviousInterruptTime=0;
@@ -84,9 +84,9 @@ void loop() {
   //first read the feedback (speed measurment) and then decide on the input
   
   //feedback - measure speed
-  //if(Revolutions>2){
+  if(Revolutions>2){
     vAngular=MeasureVelocity();
-    if(vAngular!=990){
+    //if(vAngular!=990){
     vLinear=vAngular*ropeRadius/100; //divide by 100 to get [m/s]
     }
 //}
