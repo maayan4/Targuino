@@ -28,10 +28,11 @@ boolean STOPGO=0; //0- stop, 1-go
 
 int i=0; int j=0; //for the modeling "for" loop inside loop()
 
-//Constants
+//Other Constants
 const float pi = 3.14159;
 const float radius = 6.5; //[cm] radius of the wheel. represents velocity at the end point
 const float ropeRadius=2.23; // [cm] represent velocity where the rope is
+const int numOfMagnets=2; //number of magnets available
 
 //Speed measurment variables
 unsigned long PreviousInterruptTime=0;
@@ -83,10 +84,12 @@ void loop() {
   //first read the feedback (speed measurment) and then decide on the input
   
   //feedback - measure speed
-  //if(Revolutions>3){
+  //if(Revolutions>2){
     vAngular=MeasureVelocity();
+    if(vAngular!=990){
     vLinear=vAngular*ropeRadius/100; //divide by 100 to get [m/s]
-  //}
+    }
+//}
   
   // read the value from the potentiometer and update PWM
   //potHValue = analogRead(potHPin);
@@ -99,7 +102,7 @@ void loop() {
     i++;
     j=0;
   }
- if(i>170){
+ if(i>250){
   i=0;
  } 
   
@@ -194,10 +197,11 @@ void IncrRevolution(){
 float MeasureVelocity(){ //returns angular speed omega
   
   unsigned long CurrentTime=millis();
+  
   deltaT=CurrentTime-PreviousInterruptTime; 
   PreviousInterruptTime=CurrentTime;
   
-  if (Revolutions == 0){ // check slow speed case
+  if (Revolutions == 0){ // check slow speed case or an entire revolution was not completed yet
     if(pwmHValue==0 || pwmLValue==0){
     return 0;
     }
@@ -205,10 +209,11 @@ float MeasureVelocity(){ //returns angular speed omega
     return 999; //speed is too slow for the magnetic sensor to catch it. assuming there is only one magnet on the wheel
     }
     else{
-      return 990;
-      }
+    return 990; //return some arbitrary number 
   }
-  float vAng=2*pi*1000*Revolutions/deltaT;
+}
+  
+  float vAng=2*pi*1000*Revolutions/(numOfMagnets*deltaT);
   Revolutions=0;
   return vAng; //multiply 1/period by 1000 to get the time in seconds and the velocity in Hz
 }
