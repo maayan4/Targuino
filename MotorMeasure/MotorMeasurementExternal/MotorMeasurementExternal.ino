@@ -32,12 +32,12 @@ int i=0; int j=0; //for the modeling "for" loop inside loop()
 const float pi = 3.14159;
 const float radius = 6.5; //[cm] radius of the wheel. represents velocity at the end point
 const float ropeRadius=2.23; // [cm] represent velocity where the rope is
-const int numOfMagnets=1; //number of magnets available
+const int numOfMagnets=2; //number of magnets available
 
 //Speed measurment variables
 unsigned long PreviousInterruptTime=0;
 volatile unsigned int Revolutions=0; //global variable needs to be defined as volatile in order to be used by interrupts
-volatile unsigned int deltaT=0; 
+unsigned int deltaT=0; 
 float vAngular=0;
 float vLinear=0;
 
@@ -45,6 +45,7 @@ float vLinear=0;
 int faultflag = 0; //0- OK, 1-short, 2-overheat, 3-undervoltage
 int sensorValue = 0;
 float current = 0;
+float CS=0;
 
 void setup() {
   attachInterrupt(2,IncrRevolution,RISING); //interrupt 2 is for pin number 21
@@ -84,12 +85,9 @@ void loop() {
   //first read the feedback (speed measurment) and then decide on the input
   
   //feedback - measure speed
-  if(Revolutions>2){
-    vAngular=MeasureVelocity();
-    //if(vAngular!=990){
-    vLinear=vAngular*ropeRadius/100; //divide by 100 to get [m/s]
-    }
-//}
+ if(Revolutions>1){
+    MeasureVelocity();
+}
   
   // read the value from the potentiometer and update PWM
   //potHValue = analogRead(potHPin);
@@ -117,43 +115,43 @@ void loop() {
   
   //current sensor
   sensorValue = analogRead(CSPin);  
-  //current = sensorValue * (5.0 / 1023.0);
+  current = sensorValue * (5.0 / 1023.0);
   //if (sensorValue < 512) current = -current;
  
-   current = map(sensorValue, 0, 1023, -3000, 3000);
+   //current = map(sensorValue, 0, 1023, -3000, 3000);
   
   if (DEBUG){
-    Serial.print("T");
+    //Serial.print("T");
     Serial.print(millis());
     Serial.print(" ");
-    Serial.print("PH");
+    //Serial.print("PH");
     Serial.print(pwmHPer);
     Serial.print(" ");
-    Serial.print("PL");
+    //Serial.print("PL");
     Serial.print(pwmLPer);
     Serial.print(" ");
-    Serial.print("R");
+    //Serial.print("R");
     Serial.print(Revolutions);
     Serial.print(" ");
-    Serial.print("DT");
+    //Serial.print("DT");
     Serial.print(deltaT);
     Serial.print(" ");
-    Serial.print("LV");
+    //Serial.print("LV");
     Serial.print(vLinear);
     Serial.print(" ");
-    Serial.print("AV");
+    //Serial.print("AV");
     Serial.print(vAngular);
     Serial.print(" ");
-    Serial.print("CU");
+    //Serial.print("CU");
     Serial.print(current);
     Serial.print(" ");
-    Serial.print("FA");
+    //Serial.print("FA");
     Serial.print(digitalRead(FF1));
     Serial.print(" ");
-    Serial.print("FB");
+    //Serial.print("FB");
     Serial.print(digitalRead(FF2));
     Serial.print(" ");
-    Serial.print("PS");
+    //Serial.print("PS");
     Serial.print(analogRead(PSpin));
     //Serial.print(" ");
     //Serial.print("DI");
@@ -194,28 +192,29 @@ void IncrRevolution(){
   Revolutions++;
 }
 
-float MeasureVelocity(){ //returns angular speed omega
+void MeasureVelocity(){ //returns angular speed omega
   
   unsigned long CurrentTime=millis();
   
   deltaT=CurrentTime-PreviousInterruptTime; 
   PreviousInterruptTime=CurrentTime;
   
-  if (Revolutions == 0){ // check slow speed case or an entire revolution was not completed yet
-    if(pwmHValue==0 || pwmLValue==0){
-    return 0;
-    }
-    if(deltaT>800){ // 800ms equals to speed lower than 0.5[m/s]
-    return 999; //speed is too slow for the magnetic sensor to catch it. assuming there is only one magnet on the wheel
-    }
-    else{
-    return 990; //return some arbitrary number 
-  }
-}
+//  if (Revolutions == 0){ // check slow speed case or an entire revolution was not completed yet
+//    if(pwmHValue==0 || pwmLValue==0){
+//    return 0;
+//    }
+//    if(deltaT>1000){ // 800ms equals to speed lower than 0.5[m/s]
+//    return 999; //speed is too slow for the magnetic sensor to catch it. assuming there is only one magnet on the wheel
+//    }
+//    else{
+//    return 990; //return some arbitrary number 
+//  }
+//}
   
-  float vAng=2*pi*1000*Revolutions/(numOfMagnets*deltaT);
+  vAngular=2*pi*1000*Revolutions/(numOfMagnets*deltaT);
+  vLinear=vAngular*ropeRadius/100; //divide by 100 to get [m/s]
   Revolutions=0;
-  return vAng; //multiply 1/period by 1000 to get the time in seconds and the velocity in Hz
+  return; //multiply 1/period by 1000 to get the time in seconds and the velocity in Hz
 }
   
   
