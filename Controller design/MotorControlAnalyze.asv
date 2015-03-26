@@ -92,8 +92,8 @@ end
 
 
 
-% step(feedback(Controller*rsample(sys,10),1))
-% hold on;
-% step(feedback(Controller*sys,1),'r')
+step(feedback(Controller*rsample(sys,10),1))
+hold on;
+step(feedback(Controller*sys,1),'r')
 
 
