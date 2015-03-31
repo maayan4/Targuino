@@ -81,19 +81,29 @@ set(data,'InputName','PWM DutyCycle','OutputName','Velocity');
 delay=delayest(data);
 m=[1 1; 2 1; 2 2; 3 1; 3 2; 3 3; 4 1; 4 2; 4 3; 4 4; 5 1 ; 5 2 ; 5 3; 5 4; 5 5];
 matrix=zeros(15,6);
+numOfSystems=3; %for each figure
 for i=1:15
     disp(m(i,:));
     sys=tfest(data,m(i,1),m(i,2),Ts*delay);
     Controller=pidtune(sys,'pid',6);
     matrix(i,:)=[m(i,:) sys.Report.Fit.FitPercent Controller.Kp Controller.Ki Controller.Kd];
+    eval(['sys' num2str(i) '=sys;']);
+    eval(['controller' num2str(i) '=controller;']);
+    figure(i)
+    subplot(1,3,1)
+    step(feedback(Controller*rsample(sys,10),1));
+    hold on;
+    step(feedback(Controller*sys,1),'r');
+    subplot(1,3,2)
+    nyquist(sys,'xlim',[-0.2 0.2]);
+    subplot(1,3,3)
+    rlocus(sy
+    
 end
 
 
+% save('R2_MA2_lastval_matlab.mat');
 
 
-
-step(feedback(Controller*rsample(sys,10),1))
-hold on;
-step(feedback(Controller*sys,1),'r')
 
 
