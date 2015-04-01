@@ -62,9 +62,11 @@ close all; clear all; clc;
 %fclose(f);
 
 %% model the motor
-mat_fname='\\tsclient\home\Reps\Targuino\R2_MA2_lastval.mat';
+mat_path='\home\Reps\';
+mat_fname='R2_MA2_lastval.mat';
+mat_fname_unix='/home/maayan4/Reps/Targuino/';
 
-load(mat_fname);
+load([mat_fname_unix mat_fname]);
 
 % UdelayV=unique(delayV);
 % i=1;
@@ -101,7 +103,7 @@ for i=1:15
     subplot(1,3,3)
     nyquist(feedback(Controller*sys,1))
     title('with PID')
-    saveas(gcf,eval(['sys' num2str(i)]),'png');
+    saveas(gcf,['system' num2str(i)],'png');
 end
 
 

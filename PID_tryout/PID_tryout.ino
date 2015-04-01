@@ -46,9 +46,9 @@ double vAngular                     = 0;
 double measuredIn = 0; //measured velocity
 double desiredIn  = 0; //this variable stores the desired velocity
 double sysIn      = 0; //the calculated input to the driver
-double Kp         = 0;
-double Ki         = 0;
-double Kd         = 0;
+double Kp         = 2174;
+double Ki         = 114.1452;
+double Kd         = 10351;
 PID myPID(&measuredIn, &sysIn, &desiredIn, Kp, Ki, Kd, DIRECT);
 
 //Other variables - delete if unnecessary
@@ -76,7 +76,7 @@ void setup(){
   myPID.SetOutputLimits(0,maxVelocity+1); 
 
   //turn the PID on
-  myPID.SetMode(AUTOMATIC);
+  //myPID.SetMode(AUTOMATIC);
 }
 
 void loop() {
@@ -84,16 +84,18 @@ void loop() {
  //System Control
  //////////////////////////
   if (Serial.available() > 0) {
-    int inByte = Serial.parseFloat();
+    int inByte = Serial.parseInt();
     //DEBUG - send message back
     //Serial.print("sent byte: ");
     //Serial.println(inByte);
     switch(inByte){
-      case 9: DIR=0; break;
-      case 8: DIR=1; break;
-      case 2: STOPGO=0; break;
-      case 3: STOPGO=1; break;
-      default: desiredIn=inByte; break; 
+      case 99: DIR=0; break;
+      case 88: DIR=1; break;
+      case 22: STOPGO=0; break;
+      case 33: STOPGO=1; break;
+      default: desiredIn=inByte/100; 
+                    //measuredIn=inByte;
+                    break; 
   }
   }
 
@@ -103,9 +105,10 @@ void loop() {
     MeasureVelocity();
 }
     
-  myPID.Compute();
+  //myPID.Compute();
   
-  movemotor(DIR, sysIn*254/maxVelocity , 254); //velocity is translated into analog_output value [0-254]
+  sysIn=desiredIn-measuredIn;
+  movemotor(DIR, sysIn*1023/maxVelocity , 254); //velocity is translated into analog_output value [0-1023]
   
   //current sensor
   sensorValue = analogRead(CSPin);  
