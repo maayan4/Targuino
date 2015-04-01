@@ -111,7 +111,7 @@ n_iter = LV.size
 sz = (n_iter,) # size of array
 z = LV # observations
 
-Q = 1e-5 # process variance
+Q = 1e-6 # process variance 1e-5
 
 # allocate space for arrays
 xhat=np.zeros(sz)      # a posteri estimate of x
@@ -125,16 +125,18 @@ R = 0.1**2 # estimate of measurement variance, change to see effect
 # intial guesses
 xhat[0] = 0.0
 P[0] = 1.0
+Pminus[0] = P[0] + Q;
 
 for k in range(1,n_iter):
     # time update
     xhatminus[k] = xhat[k-1]
     Pminus[k] = P[k-1]+Q
-
     # measurement update
     K[k] = Pminus[k]/( Pminus[k]+R )
     xhat[k] = xhatminus[k]+K[k]*(z[k]-xhatminus[k])
     P[k] = (1-K[k])*Pminus[k]
+
+
 
 pylab.figure(4)
 pylab.plot(z,'k+',label='noisy measurements')
