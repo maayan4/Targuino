@@ -1,3 +1,5 @@
+
+
 //DEGUG MODE
 const boolean DEBUG = 1;
 
@@ -36,13 +38,13 @@ const int numOfMagnets=2; //number of magnets available
 const double maxV = 4;
 
 //Kalman Filter properties
-double vKalman = 0; //initial guess
+float vKalman = 0; //initial guess
 //double XhatMinus = 0;
-double P = 1; //initial guess
+float P = 1; //initial guess
 //double PMinus = 0;
-double Q = 1*10^(-6);
-double R = 0.01;
-double K = 0;
+double Q = 1E-6;
+float R = 0.01;
+float K = 0;
 
 //Speed measurment variables
 unsigned long PreviousInterruptTime=0;
@@ -144,26 +146,35 @@ void loop() {
     //Serial.print("DT");
     Serial.print(deltaT);
     Serial.print(" ");
-    //Serial.print("LV");
+    Serial.print("LV");
     Serial.print(vLinear);
     Serial.print(" ");
-    //Serial.print("AV");
+    Serial.print("vK");
     Serial.print(vKalman);
     Serial.print(" ");
-    //Serial.print("CU");
+    Serial.print("CU");
     Serial.print(current);
     Serial.print(" ");
     //Serial.print("FA");
-    Serial.print(digitalRead(FF1));
-    Serial.print(" ");
+    //Serial.print(digitalRead(FF1));
+    //Serial.print(" ");
     //Serial.print("FB");
-    Serial.print(digitalRead(FF2));
-    Serial.print(" ");
+    //Serial.print(digitalRead(FF2));
+    //Serial.print(" ");
     //Serial.print("PS");
-    Serial.print(analogRead(PSpin));
+    //Serial.print(analogRead(PSpin));
     //Serial.print(" ");
     //Serial.print("DI");
     //Serial.print(DIR);
+    Serial.print(" ");
+    Serial.print("K");
+    Serial.print(K*1E4);
+    Serial.print("R");
+    Serial.print("");
+    Serial.print(R);
+    Serial.print(" ");
+    Serial.print("Q");
+    Serial.print(Q*1E6);
     Serial.println("");
  }
   
@@ -233,6 +244,7 @@ void KalmanFilter(){
   K    = P / (P + R);
   vKalman = vKalman + K * (vLinear - vKalman);   
   P    = (1 - K) * P;
+  return;
 }
   
   

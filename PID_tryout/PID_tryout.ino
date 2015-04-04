@@ -4,16 +4,16 @@
 const boolean DEBUG = 1;
 
 //Digital Pins
-const int FF1       = 51;
-const int FF2       = 53;
-const int RESET     = 49;
+const int FF1             = 51;
+const int FF2             = 53;
+const int RESET        = 49;
 const int pwmHPin   = 46;
-const int pwmLPin   = 44; 
-const int dirPin    = 43;
-const int resetPin  = 41;
+const int pwmLPin    = 44; 
+const int dirPin          = 43;
+const int resetPin      = 41;
 
-const int SENSOR    = 21;
-const int ledPin    = 13;
+const int SENSOR     = 21;
+const int ledPin          = 13;
 
 //Analog Pins
 const int PSpin     = A12;
