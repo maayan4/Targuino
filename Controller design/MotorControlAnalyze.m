@@ -63,7 +63,7 @@ close all; clear all; clc;
 
 %% model the motor
 mat_path='\home\Reps\';
-mat_fname='R2_MA2_lastval.mat';
+mat_fname='switchVNoisy.mat';
 mat_fname_unix='/home/maayan4/Reps/Targuino/';
 
 load([mat_fname_unix mat_fname]);
@@ -74,17 +74,17 @@ load([mat_fname_unix mat_fname]);
 %     count(i)=sum(delayV==UdelayV(i));
 %     i=i+1;
 % end
-    
+xhat=xhat'; PH=PH'; time=time';
 Ts=max(diff(time));
 data = iddata(xhat',PH',[],'SamplingInstants',time);
 %Ts=10e-3;
 data = iddata(xhat',PH',Ts); %assume evenly spaced samples
 set(data,'InputName','PWM DutyCycle','OutputName','Velocity');
 delay=delayest(data);
-m=[1 1; 2 1; 2 2; 3 1; 3 2; 3 3; 4 1; 4 2; 4 3; 4 4; 5 1 ; 5 2 ; 5 3; 5 4; 5 5];
+m=[1 1; 2 1; 2 2; 3 1; 3 2; 3 3; 4 1; 4 2; 4 3; 4 4];
 matrix=zeros(15,6);
 numOfSystems=3; %for each figure
-for i=1:15
+for i=1:size(m,2)
     disp(m(i,:));
     sys=tfest(data,m(i,1),m(i,2),Ts*delay);
     Controller=pidtune(sys,'pid',6);
@@ -93,9 +93,13 @@ for i=1:15
     eval(['Controller' num2str(i) '=Controller;']);
     figure(i)
     subplot(1,3,1)
+    try
     step(feedback(Controller*rsample(sys,10),1));
+    end
     hold on;
+    try
     step(feedback(Controller*sys,1),'r');
+    end
     title('step response');
     subplot(1,3,2)
     nyquist(sys); xlim([-0.2 0.2]);

@@ -4,25 +4,31 @@
 #define DEBUG      1
 
 //Digital Pins
-#define FF1            51
-#define FF2            53
-#define RESET       49
-#define pwmHPin  46
-#define pwmLPin   44 
-#define dirPin         43
-#define resetPin     41
+#define FF1            12
+#define FF2            11
+#define RESET       10
+#define pwmHPin  9
+#define pwmLPin   8 
+#define dirPin         7
+#define resetPin     0
 
-#define SENSOR    21
+#define SENSOR    2
 #define ledPin         13
 
 //Analog Pins
-#define PSpin        A12
-#define CSPin        A13
-#define potHPin    A14
-#define potLPin     A15
+#define PSpin        A2
+#define CSPin        A3
+#define potHPin    A4
+#define potLPin     A5
+
+//Second Motor pins - just to check PID
+#define pwmHPinB  4
+#define pwmLPinB   3 
+#define dirPinB         2
+
 
 //Temporary variables for the loop function
-boolean DIR          = 0; // 1 - clockwise, 0 - counter-clockwise
+boolean DIR          = 1; // 1 - clockwise, 0 - counter-clockwise
 boolean STOPGO       = 0; //0- stop, 1-go
 
 double i=0; int j=0; //for the modeling "for" loop inside loop()
@@ -72,8 +78,8 @@ float current     = 0;
 float CS          = 0;
 
 void setup(){
-  attachInterrupt(2,IncrRevolution,RISING); //interrupt 2 is for pin number 21 - magnet sensor input
-  interrupts();
+  attachInterrupt(0,IncrRevolution,RISING); //interrupt 0 is for pin number 2 on arduino uno - magnet sensor input
+ 
   
   Serial.begin(    9600);
   pinMode(ledPin,                  OUTPUT);
@@ -108,7 +114,7 @@ void loop() {
       case 88: DIR=1; break;
       case 22: STOPGO=0; break;
       case 33: STOPGO=1; break;
-      default: desiredIn=inByte/100; 
+      default: //desiredIn=inByte/100; 
                     //measuredIn=inByte;
                     break; 
   }
@@ -123,17 +129,19 @@ void loop() {
   j++;
   
   if(j>100){
-    desiredIn = 100;
-    //KalmanFilterClear();
+    desiredIn = 80;
   }
+  if(j==100){
+    DIR = !DIR;
+  }    
  if(j>180){
    desiredIn =0;
-  //KalmanFilterReset();
   j=0;
  } 
  
  myPID.Compute();
-  movemotor(DIR,  sysIn , 255, 0); //velocity is translated into analog_output value [0-255] //*255/maxVelocity
+ movemotor(DIR,  sysIn , 255, 0); //velocity is translated into analog_output value [0-255] //*255/maxVelocity
+ //movemotorB(DIR,  sysIn , 255, 0); 
   
   //current sensor
   sensorValue = analogRead(CSPin);  
@@ -228,58 +236,26 @@ void IncrRevolution(){
 
 void MeasureVelocity(int deltaT){ //returns kalman filtered linear speed 
   
-  /*if(Revolutions == 0){ //with sample time (deltaT) equals to 500 ms, this condition represents velocity slower than 0.14 [m/s] 
-    vNoisy = 0;
+  float vAngularOld = vAngular;
+  vAngular=2*pi*1000*Revolutions/(numOfMagnets*deltaT); //multiply 1/period by 1000 to get the time in seconds and the velocity in Hz
+  vNoisy=vAngular*ropeRadius/100; //divide by 100 to get [m/s]   
+    
+  float delta = vAngular - vAngularOld; 
+  int K = 0.5;
+  if(delta > 0){
+    K = K;
   }
-  else if(Revolutions == 1){
-    vNoisy = vNoisy;  //keep the last value
-  }
-  else{*/ 
-    float vAngularOld = vAngular;
-    vAngular=2*pi*1000*Revolutions/(numOfMagnets*deltaT); //multiply 1/period by 1000 to get the time in seconds and the velocity in Hz
-    vNoisy=vAngular*ropeRadius/100; //divide by 100 to get [m/s]   
-  //}
-  
-  KalmanFilter();
-  
-  //measuredIn = vNoisy; // vKalman; //* 255 / maxVelocity;
-  
-  measuredIn = ( vAngular + 0.5 * abs ( vAngular - vAngularOld) ) * 255 / 157.07; //convert vAngular to PWM values
+    else if(delta < 0){
+      K = -K;
+    }
+      else{
+        K = 0;
+      }
+   
+  measuredIn = ( vAngular + K * abs (delta ) ) * 255 / 157.07; //convert vAngular to PWM values
   
   Revolutions=0;
   return; 
-}
-
-void KalmanFilter(){
-  P = P + Q;
-  K    = P / (P + R);
-  vKalman = vKalman + K * (vNoisy - vKalman);   // = (1-K)*vKalman + K*vNoisy. K is the weight of the measurement
-  P    = (1 - K) * P;
-  return;
-}
-
-void KalmanFilterReset(float p, float q, float r, float k){ //reset kalman filter properties to initial values 
-  P = p; 
-  Q = q;
-  R = r;
-  K = k;
-  return;
-}
-
-void MeasureMaxVelocity(){
-  
-  movemotor(DIR, 255 , 255, 0);
-  
-  int nTimes = 0;
-  
-  while(nTimes<2){
-    nTimes = nTimes + checkTime(10*VMEASURE_SAMPLE_TIME);
-  }
-  
-  MeasureVelocity(5*VMEASURE_SAMPLE_TIME);
-  maxVelocity = vKalman / nTimes;
-  return;
-  
 }
 
 boolean checkTime(int sampleTime){ //returns 1 if more than  SAMPLE_TIME has past
@@ -295,5 +271,21 @@ boolean checkTime(int sampleTime){ //returns 1 if more than  SAMPLE_TIME has pas
    return 0;
     }
 }
+
+boolean movemotorB(boolean DIR, float pwmH, float pwmL, boolean isRealV){
   
+  if(isRealV){
+    pwmH = map(pwmH, 0, maxVelocity, 0, 255);
+    pwmL  = map(pwmL, 0, maxVelocity, 0, 255); 
+    }
+  else if(pwmH > 255 || pwmL >255){
+    return 1;
+    }
   
+  digitalWrite(dirPinB,DIR);
+  analogWrite(pwmHPinB, pwmH);
+  analogWrite(pwmLPinB, pwmL);
+  
+  return 0;
+  
+}
