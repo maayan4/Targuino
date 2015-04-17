@@ -47,6 +47,7 @@ if(MS == 1){
 boolean beginXbee(){
   Serial.begin(XBEE_DATA_RATE);
   Serial.print("+++");
+  if(Serial.available
 }
 
 void serialEvent() {

@@ -94,7 +94,7 @@ void loop() {
   //potLValue = analogRead(potLPin);
   
   pwmLValue=254;
-  pwmHValue=i;
+  pwmHValue=100;
   j++;
   if(j>20){
     i++;
@@ -121,41 +121,41 @@ void loop() {
    //current = map(sensorValue, 0, 1023, -3000, 3000);
   
   if (DEBUG){
-    //Serial.print("T");
+    Serial.print("T");
     Serial.print(millis());
     Serial.print(" ");
-    //Serial.print("PH");
+    Serial.print("PH");
     Serial.print(pwmHPer);
     Serial.print(" ");
-    //Serial.print("PL");
+    Serial.print("PL");
     Serial.print(pwmLPer);
     Serial.print(" ");
-    //Serial.print("R");
+    Serial.print("R");
     Serial.print(Revolutions);
     Serial.print(" ");
-    //Serial.print("DT");
+    Serial.print("DT");
     Serial.print(deltaT);
     Serial.print(" ");
-    //Serial.print("LV");
+    Serial.print("LV");
     Serial.print(vLinear);
     Serial.print(" ");
-    //Serial.print("AV");
+    Serial.print("AV");
     Serial.print(vAngular);
     Serial.print(" ");
-    //Serial.print("CU");
-    Serial.print(current);
+    Serial.print("CU");
+    Serial.print(sensorValue);
     Serial.print(" ");
-    //Serial.print("FA");
+    Serial.print("FA");
     Serial.print(digitalRead(FF1));
     Serial.print(" ");
-    //Serial.print("FB");
+    Serial.print("FB");
     Serial.print(digitalRead(FF2));
     Serial.print(" ");
-    //Serial.print("PS");
+    Serial.print("PS");
     Serial.print(analogRead(PSpin));
-    //Serial.print(" ");
-    //Serial.print("DI");
-    //Serial.print(DIR);
+    Serial.print(" ");
+    Serial.print("DI");
+    Serial.print(DIR);
     Serial.println("");
  }
   

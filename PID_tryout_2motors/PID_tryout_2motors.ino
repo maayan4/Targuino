@@ -1,7 +1,7 @@
 #include <PID_v1.h>
 
 //DEGUG MODE
-#define DEBUG      1
+#define DEBUG      0
 
 //Digital Pins
 #define FF1            51
@@ -11,6 +11,7 @@
 #define pwmLPin   44 
 #define dirPin         43
 #define resetPin     41
+#define MSpin 14 //pin to determine whether the unit is in master or slave mode
 
 #define SENSOR    19
 #define ledPin         13
@@ -20,6 +21,7 @@
 #define CSPin        A13
 #define potHPin    A14
 #define potLPin     A15
+#define potPin       A2
 
 //Second Motor pins - just to check PID
 #define pwmHPinB  4
@@ -72,16 +74,20 @@ double Kd         = 0.02872;
 PID myPID(&measuredIn, &sysIn, &desiredIn, Kp, Ki, Kd, DIRECT);
 
 //Other variables - delete if unnecessary
-int faultflag     = 0; //0- OK, 1-short, 2-overheat, 3-undervoltage
-int sensorValue   = 0;
-float current     = 0;
-float CS          = 0;
+int faultflag           = 0; //0- OK, 1-short, 2-overheat, 3-undervoltage
+int sensorValue    = 0;
+float current         = 0;
+float CS                  = 0;
+boolean MS           = 0; //default status 0 - arduino in slave mode (1 for master)
+
+//XBEE
+#define XBEE_DATA_RATE 57600
 
 void setup(){
   attachInterrupt(4,IncrRevolution,RISING); //interrupt 4 is for pin number 19 - magnet sensor input
  
   
-  Serial.begin(    9600);
+  Serial.begin(    XBEE_DATA_RATE);
   pinMode(ledPin,                  OUTPUT);
   pinMode(pwmHPin,                 OUTPUT); 
   pinMode(pwmLPin,                 OUTPUT);
@@ -90,10 +96,15 @@ void setup(){
   pinMode(FF2,                     INPUT); 
   pinMode(SENSOR,                  INPUT);
   pinMode(resetPin,                OUTPUT);
+  pinMode(MSpin,INPUT);
+  
   digitalWrite(resetPin,           0);
   
-  //KalmanFilterReset(Pdef,Qdef,Rdef,Kdef);
+  //CHECK MASTER/SLAVE MODE
+  if(digitalRead(MSpin)==HIGH){MS=1;}
   
+  //KalmanFilterReset(Pdef,Qdef,Rdef,Kdef);
+  //beginXbee();
   PreviousInterruptTime=millis();
   //MeasureMaxVelocity();
   
@@ -107,7 +118,7 @@ void loop() {
  
  //System Control
  //////////////////////////
-  if (Serial.available() > 0) {
+ /*while (Serial.available()) {
     int inByte = Serial.parseInt();
     switch(inByte){
       case 99: DIR=0; break;
@@ -118,7 +129,7 @@ void loop() {
                     //measuredIn=inByte;
                     break; 
   }
-  }
+  }*/
 
   //feedback - measure speed
   //////////////////////////////
@@ -126,22 +137,24 @@ void loop() {
     MeasureVelocity(VMEASURE_SAMPLE_TIME);
   }
  
-  j++;
-  
-  if(j>100){
-    desiredIn = 50;
-  }
-  if(j==100){
-    //DIR = !DIR;
-  }    
- if(j>180){
-   desiredIn =50;
-  j=0;
- } 
+ if(MS){
+    j++;
+  desiredIn = map( analogRead(potPin) , 0 , 1023 , 0 , 254);
+  /*  if(j>100){
+      desiredIn = 50;
+    }
+    if(j==100){
+      //DIR = !DIR;
+    }    
+   if(j>180){
+     desiredIn =50;
+    j=0;
+   }*/ 
+    myPID.Compute();
+    movemotorB(DIR,  sysIn , 255, 0);
+ }
  
- myPID.Compute();
  movemotor(DIR,  sysIn , 255, 0); //velocity is translated into analog_output value [0-255] //*255/maxVelocity
- //movemotorB(DIR,  sysIn , 255, 0); 
   
   //current sensor
   sensorValue = analogRead(CSPin);  
@@ -274,7 +287,7 @@ boolean checkTime(int sampleTime){ //returns 1 if more than  SAMPLE_TIME has pas
 
 boolean movemotorB(boolean DIR, float pwmH, float pwmL, boolean isRealV){
   
-  if(isRealV){
+ /* if(isRealV){
     pwmH = map(pwmH, 0, maxVelocity, 0, 255);
     pwmL  = map(pwmL, 0, maxVelocity, 0, 255); 
     }
@@ -285,7 +298,47 @@ boolean movemotorB(boolean DIR, float pwmH, float pwmL, boolean isRealV){
   digitalWrite(dirPinB,DIR);
   analogWrite(pwmHPinB, pwmH);
   analogWrite(pwmLPinB, pwmL);
+  */
+  //Serial.print('D');
+  //delay(10);
+  //Serial.print(DIR);
+  //delay(10);
+  //Serial.print('S');
+  //delay(10);
+  Serial.println((int)pwmH);
   
   return 0;
   
+}
+
+void serialEvent() {
+  if (Serial.available()>0) {
+    // get the new byte:
+     sysIn = (int)Serial.parseInt();
+    //char inChar = (char)Serial.read();
+    // add it to the inputString:
+    /*switch(inChar){
+      case 'S':
+        desiredIn = (int)Serial.read();
+      case 'D':
+        DIR = (boolean)Serial.read();
+       default: 
+         continue;
+        //do nothing for now
+    }*/
+    }
+}
+
+boolean beginXbee(){
+  Serial.print("+++");
+  delay(1000);
+  if (Serial.available() > 0) {
+    //digital/Write(ledPin,HIGH);
+    //String inStr(2);
+    char inStr[2];
+    Serial.readBytes(inStr,2);
+    if(inStr == "OK"){
+      digitalWrite(ledPin,HIGH);
+    }
+  }
 }

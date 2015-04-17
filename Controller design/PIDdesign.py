@@ -9,7 +9,7 @@ import numpy as np
 import pylab
 import scipy.io as IO
 
-fname = '/Users/raziele/Reps/Targuino/RawData/logR2_MA2_lastVal_updated.dat'
+fname = '/home/maayan4/Reps/Targuino/RawData/logR2_MA2_lastVal_updated.dat'
 #fname = '/Users/raziele/Reps/Targuino/MotorMeasureKalman/output.dat'
 #fname = '/Users/raziele/Reps/Targuino/RawData/log_KalmanFilter.dat'
 fmode = 'U'
@@ -69,8 +69,8 @@ pylab.plot(time,CU,'k+')
 pylab.xlabel('time')
 pylab.ylabel('$Current$')
 ax6 = pylab.subplot(2,4,6)
-#pylab.plot(time,PS,'k+')
-#pylab.xlabel('time')
+pylab.plot(time,PS,'k+')
+pylab.xlabel('time')
 pylab.ylabel('$Power Supply$')
 ax7 = pylab.subplot(2,4,7)
 pylab.plot(PH,LV,'k+')
@@ -157,7 +157,7 @@ pylab.ylabel('Velocity')
 
 data={"xhat":xhat, "time":time, "PH":PH}
 
-IO.savemat("/Users/raziele/Reps/Targuino/improvedKalman.mat",data)
+#IO.savemat("/Users/raziele/Reps/Targuino/improvedKalman.mat",data)
 
 pylab.figure(5)
 pylab.plot(time,PH,'k-',label='input')
