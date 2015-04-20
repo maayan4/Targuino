@@ -282,14 +282,15 @@ void loop(){
                 // Ajax request - send XML file
                 unsigned int ind = StrContains(HTTP_req, "SaveVel=");
                 if(ind){
-                	
+                	 reqVel = 60;
                 	 //reqVel = float(HTTP_req[ind+1]+HTTP_req[ind+2]+ /  ropeRadius; 
                 }
-                if (StrContains(HTTP_req, "ajax_inputs")) {
+                if (StrContains(HTTP_req, "status")) {
                     // send rest of HTTP header
                     client.println("Content-Type: text/xml");
                     client.println("Connection: keep-alive");
                     client.println();
+                    client.println(FSM_State);
                     //SetLEDs();
                     // send XML file containing input states
                     //XML_response(client);
@@ -447,7 +448,6 @@ boolean initSD(){ //initialize SD card
 }
 
 boolean openWebPage(char *Tfilename, EthernetClient cl){
-	Serial.println("loading html file");
   	TServerFile = SD.open(Tfilename);        // open web page file
 	if(TServerFile) {
 	  while(TServerFile.available()) {
