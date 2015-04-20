@@ -1,7 +1,7 @@
 #include <PID_v1.h>
 
 //DEGUG MODE
-#define DEBUG      0
+#define DEBUG      1
 
 //Digital Pins
 #define FF1            51
@@ -139,7 +139,7 @@ void loop() {
  
  if(MS){
     j++;
-  desiredIn = map( analogRead(potPin) , 0 , 1023 , 0 , 254);
+  desiredIn = 30;
   /*  if(j>100){
       desiredIn = 50;
     }
@@ -158,7 +158,8 @@ void loop() {
   
   //current sensor
   sensorValue = analogRead(CSPin);  
-  current = sensorValue * (5.0 / 1023.0);
+  current = ( map(sensorValue, 0, 1023, 0, 5) - 2.5) / 0.066;
+
   
   if (DEBUG){
     //Serial.print("T");
@@ -176,10 +177,10 @@ void loop() {
     Serial.print("R");
     Serial.print(Revolutions);
     Serial.print(" ");
-    //Serial.print("CU");
+    Serial.print("CU");
     Serial.print(current);
     Serial.print(" ");
-    //Serial.print("PS");
+    Serial.print("PS");
     Serial.print(analogRead(PSpin));
     Serial.print(" ");
     //Serial.print("DI");

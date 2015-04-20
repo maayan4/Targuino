@@ -1,10 +1,13 @@
 #include <PID_v1.h>
+#include <SPI.h>
+#include <Ethernet.h>
+#include <SD.h>
 
 #define DEBUG             0
 
 //Digital Pins
-#define FF1pin            51 //fault flag 1
-#define FF2pin            53 //fault flag 2
+#define FF1pin            41 //fault flag 1
+#define FF2pin            39 //fault flag 2
 #define motorResetPin     49 //motor driver reset pin
 #define pwmHPin           46 //motor driver PWM high pin
 #define pwmLPin           44 //motor driver PWM low pin
@@ -27,7 +30,6 @@
 #define RUN_TARGET        5
 #define SLAVE_STATE       6
 
-
 //PID
 #define Kp                0.0603 
 #define Ki                3.316
@@ -48,11 +50,15 @@
 //XBEE
 #define XBEE_DATA_RATE 57600
 
+//Ethernet
+#define REQ_BUF_SZ   60 // size of buffer used to capture HTTP requests
+
+
+
 //Motor State description variables
 boolean DIR                         = 1; // 1 - clockwise, 0 - counter-clockwise
 volatile unsigned int Revolutions   = 0; //number of revolutions. global variable needs to be defined as volatile in order to be used by interrupts
-volatile unsigned int calRev        = 0; //this variable counts the distance between the two motors, since Revolutions is zeroed in every velocity measurement [Revolutions]
-volatile unsigned int RunLength     = 0; //this variable counts revolutions during a run and compare it to lTrack [Revolutions]
+volatile unsigned int RunLength     = 0; //this variable counts revolutions during a run and compare it to lTrack [Revolutions]. It also delivers the length to lTrack during calibration
 unsigned int lTrack                 = 0; //stores the length of the track (=distance between motors)
 float vAngular                      = 0;
 double measuredIn                   = 0; //[m/s]measured velocity
@@ -83,6 +89,15 @@ boolean RunReq          = 0; //flag indicating if a run request was received
 double reqVel           = 40; //the velocity the user requested for the run
 char inMsg[5]           = "";
 
+//Ethernet
+byte mac[] 						= {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
+IPAddress 				        ip(192, 168, 0, 177);
+EthernetServer   			    server(80);
+char HTTP_req[REQ_BUF_SZ] 		= {0};  	// 0 = null in ascii
+char req_index   				= 0;       // index into HTTP_req buffer
+
+//SD card
+File TServerFile;
 
 //Other variables - delete if unnecessary
 int faultflag           = 0; //0- OK, 1-short, 2-overheat, 3-undervoltage
@@ -93,11 +108,13 @@ boolean tmpFlag         = true;
 
 //=====================SETUP=============================================
 void setup(){
+  // disable Ethernet chip
+  pinMode(10, OUTPUT);
+  digitalWrite(10, HIGH);
   
-  //setup interrupt for the magnet sensor
-  attachInterrupt(4,IncrRevolution,RISING); //interrupt 4 is for pin number 19 - magnet sensor input
   //initialize XBEE
   Serial.begin(             XBEE_DATA_RATE); 
+
   //initialize digital pins. Analog pins don't require initialize
   pinMode(pwmHPin,          OUTPUT); 
   pinMode(pwmLPin,          OUTPUT);
@@ -113,13 +130,24 @@ void setup(){
   //CHECK MASTER/SLAVE MODE
   if(digitalRead(MSpin) ==  HIGH){  MS = 1; }
   //beginXbee();
-  PreviousInterruptTime = millis(); //start timer
+  
+  if(MS){
+    //initialize Ethernet server
+    Ethernet.begin(mac, ip);
+    server.begin();
+  	initSD();
+  }
   
   myPID.SetOutputLimits(0,255);  //tell the PID to range between 0 and 255 (PWM range)    // some arbitrary value I've decided of.
   myPID.SetMode(    AUTOMATIC); //turn the PID on
   myPID.SetSampleTime(    200);
 
   maximumRunTime = float(NOMINAL_TRACK_LENGTH / SLOW_VELOCITY / ropeRadius) * 1000;
+
+  //setup interrupt for the magnet sensor
+  attachInterrupt(4,IncrRevolution,RISING); //interrupt 4 is for pin number 19 - magnet sensor input
+
+  PreviousInterruptTime = millis(); //start timer
 }
 
 //=====================MAIN=============================================
@@ -146,13 +174,13 @@ void loop(){
        
        case MOVE_TO_ONE_SIDE:
          timeGuard = millis() - tBeginMovement;
-         if(timeGuard > maximumRunTime || stopSignal || current > 0){ //if target arrived to one of the sides
+         if(timeGuard > maximumRunTime || stopSignal){ //if target arrived to one of the sides
           Serial.print(" I think i'm at the other side! it took me "); Serial.print(timeGuard); Serial.println(" [ms] to get there...");
           stopMotors();
           DIR = !DIR; //change direction of motors
           if(SetupReq){    
             FSM_State = MEASURE_LENGTH;
-            calRev = 0; //reset calRev before it starts to count
+            RunLength = 0; //resets measurement of the distance the target has moved before run 
             tBeginMovement = millis(); //start watchdog for the target movement
             Serial.println("going into state: measuring length! measuring..."); 
           }
@@ -178,7 +206,7 @@ void loop(){
         //Serial.print("DesiredIn: "); Serial.print(desiredIn); Serial.print(" MeasuredIn: "); Serial.println(measuredIn);
         timeGuard = millis() - tBeginMovement;
          if(timeGuard > maximumRunTime || stopSignal){ // target probably arrived to the other edge of the rope 
-          Serial.print("i'm at the end! Distance is now: "); Serial.print(calRev); Serial.println(" revolutions. stopping...");
+          Serial.print("i'm at the end! Distance is now: "); Serial.print(RunLength); Serial.println(" revolutions. stopping...");
           stopMotors();
           FSM_State = SAVE_DATA;
           stopSignal = false; //reset stopSignal for the future
@@ -191,8 +219,8 @@ void loop(){
          break;
        
        case SAVE_DATA:
-         Serial.print("i'm in state: saving data! length of track is: "); Serial.print(calRev); Serial.println(" revolutions. Saving...");
-         lTrack = calRev;
+         Serial.print("i'm in state: saving data! length of track is: "); Serial.print(RunLength); Serial.println(" revolutions. Saving...");
+         lTrack = RunLength;
          //save lTrack to EEPROM
          SetupReq = 0;
          FSM_State = ZERO_STATE;
@@ -227,29 +255,87 @@ void loop(){
          FSM_State = ZERO_STATE;
          stopMotors(); //just in case something happens...
          break;
-   } 
+	} 
 
   //current sensor
   sensorValue = analogRead(CSPin);  
   current = ( map(sensorValue, 0, 1023, 0, 5) - 2.5) / 0.066;
-  
- }
+
+  //Ethernet communication handling
+  EthernetClient client = server.available();  // try to get client
+  if(client){
+  	boolean currentLineIsBlank = true;
+	while (client.connected()) {
+        if (client.available()) {   // client data available to read
+			char c = client.read(); // read 1 byte (character) from client
+            if (req_index < (REQ_BUF_SZ - 1)){     // limit the size of the stored received HTTP request.  buffer first part of HTTP request in HTTP_req. leave last element in array as 0 to null terminate string (REQ_BUF_SZ - 1)
+                HTTP_req[req_index] = c;          // save HTTP request character
+                req_index++;
+            	}
+            // last line of client request is blank and ends with \n
+            // respond to client only after last line received
+            if (c == '\n' && currentLineIsBlank) {
+                // send a standard http response header
+                client.println("HTTP/1.1 200 OK");
+                // remainder of header follows below, depending on if
+                // web page or XML page is requested
+                // Ajax request - send XML file
+                unsigned int ind = StrContains(HTTP_req, "vel_input_textbox=");
+                if(ind){
+                	 
+                }
+                if (StrContains(HTTP_req, "ajax_inputs")) {
+                    // send rest of HTTP header
+                    client.println("Content-Type: text/xml");
+                    client.println("Connection: keep-alive");
+                    client.println();
+                    //SetLEDs();
+                    // send XML file containing input states
+                    //XML_response(client);
+                	}
+                else {  // web page request
+                    // send rest of HTTP header
+                    client.println("Content-Type: text/html");
+                    client.println("Connection: keep-alive");
+                    client.println();
+                    // send web page
+                    openWebPage("index.htm", client);
+                    
+                    Serial.print(HTTP_req); // display received HTTP request on serial port
+
+                    req_index = 0;// reset buffer index and all buffer elements to 0
+                    StrClear(HTTP_req, REQ_BUF_SZ);
+                    break;
+                	}
+                }
+            // every line of text received from the client ends with \r\n
+            if (c == '\n'){ 		currentLineIsBlank = true; } // last character on line of received text, starting new line with next character read
+            else if (c != '\r'){   currentLineIsBlank = false; }// a text character was received from client
+        	} // end if (client.available())
+    	} // end while (client.connected())
+    delay(1);      // give the web browser time to receive the data
+    client.stop(); // close the connection	
+    Serial.println("Connection closed");
+    Serial.println(req_index);
+	} //end if(client)
+}//end loop
   
 //=====================FUNCTIONS=============================================
 boolean movemotor(boolean DIR, float pwmH, float pwmL){ //set motor velocity and direction
   
-  if(pwmH > 255 || pwmL >255){  return 1; } //illigal values
+  if(pwmH > 255 || pwmL >255){  
+  	return 1; 
+  	} //illigal values
+  
   digitalWrite(dirPin,DIR);
   analogWrite(pwmHPin, pwmH);
   analogWrite(pwmLPin, pwmL);
   return 0;
-
 }
 
 void IncrRevolution(){ //ISR function - measure revolutions
   
   Revolutions++;
-  calRev++;
   RunLength++;
 
 }
@@ -285,24 +371,24 @@ boolean checkTime(int sampleTime){ //returns 1 if more than  SAMPLE_TIME has pas
 }
 
 boolean movemotorB(boolean DIR, float pwmH, float pwmL){ //send motor command to the slave arduino
-  Serial.print('d');
+  /*Serial.print('d');
   delay(100);
   Serial.print(DIR);
   delay(100);
   Serial.print('i');
   delay(100);
   Serial.print(pwmH);
-  delay(100);
+  delay(100);*/
   return 0;
 }
 
 void serialEvent() {
   char temp;
+  int tmp;
   if (Serial.available()) {
     // get the new byte:
     temp = (char) Serial.read();
    }
-   int tmp; 
    switch(temp){
     case 'c': //calibration command
       SetupReq = true;
@@ -319,7 +405,7 @@ void serialEvent() {
       tmp = Serial.parseInt();
       sysIn = tmp;
       break;
-    default:;
+    default:
       Serial.println("error in message");
       break;    
   }
@@ -342,4 +428,60 @@ boolean beginXbee() {
       //digitalWrite(ledPin,HIGH);
     }
   }
+}
+
+boolean initSD(){ //initialize SD card
+    Serial.println("Initializing SD card...");
+    if (!SD.begin(4)) {
+        Serial.println("ERROR - SD card initialization failed!");
+        return 1;    // init failed
+    }
+    Serial.println("SUCCESS - SD card initialized.");
+    // check for index.htm file
+    if (!SD.exists("index.htm")) {
+        Serial.println("ERROR - Can't find index.htm file!");
+        return 1;  // can't find index file
+    }
+    Serial.println("SUCCESS - Found index.htm file.");
+}
+
+boolean openWebPage(char *Tfilename, EthernetClient cl){
+	Serial.println("loading html file");
+  	TServerFile = SD.open(Tfilename);        // open web page file
+	if(TServerFile) {
+	  while(TServerFile.available()) {
+	     cl.write(TServerFile.read()); // send web page to client
+	    }
+	  TServerFile.close();
+	  }
+	  return 0;
+	}
+
+void StrClear(char *str, char str_length){ // sets every element of str to 0 (clears array)
+    
+    for (int i = 0; i < str_length; i++){ str[i] = 0;}
+
+}
+
+
+unsigned int StrContains(char *str, char *sfind){ // searches for the string sfind in the string str. returns the index of the last letter if string found, returns 0 if string not found
+
+    char found = 0;
+    char index = 0;
+    char len;
+    unsigned int iEnd = 0;
+
+    len = strlen(str);
+    
+    if (strlen(sfind) > len){ return 0; }
+    while (index < len) {
+        if (str[index] == sfind[found]){ 
+          found++;
+          iEnd = index;
+          if (strlen(sfind) == found){ return iEnd;}
+          }
+        else{ found = 0;}
+        index++;
+    }
+    return 0;
 }
