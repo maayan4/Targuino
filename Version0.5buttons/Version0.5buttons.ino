@@ -29,7 +29,7 @@
 #define potPin            A2 //potentiometer pin (optional)
 
 //State machine
-#define numOfStates       0
+#define numOfStates       6
 #define ZERO_STATE        1
 #define MOVE_TO_ONE_SIDE  2
 #define MEASURE_LENGTH    3
@@ -69,7 +69,8 @@ volatile unsigned int RunLength     = 0; //this variable counts revolutions duri
 unsigned int lTrack                 = 0; //stores the length of the track (=distance between motors)
 float vAngular                      = 0;
 double measuredIn                   = 0; //[m/s]measured velocity
-float K                             = 0; //averaging constant between very different velocity measurements
+float K                             = 0.5; //averaging constant between very different velocity measurements
+float kk                            = 0;
 int distance_from_edge              = 0; //this variable contains the calculated distance from the opposite edge 
 
 //Timer and watchdog variables
@@ -93,7 +94,7 @@ boolean SetupReq        = 0; //flag indicating if a setup request was received
 boolean RunReq          = 0; //flag indicating if a run request was received
 
 //user request variables
-double reqVel           = 40; //the velocity the user requested for the run
+double reqVel           = 0; //the velocity the user requested for the run
 char inMsg[5]           = "";
 
 //Ethernet
@@ -121,6 +122,7 @@ void setup(){
   
   //initialize XBEE
   Serial.begin(             XBEE_DATA_RATE); 
+  Serial2.begin(             XBEE_DATA_RATE); 
 
   //initialize digital pins. Analog pins don't require initialize
   pinMode(pwmHPin,          OUTPUT); 
@@ -163,28 +165,28 @@ void setup(){
   attachInterrupt(4,IncrRevolution,RISING); //interrupt 4 is for pin number 19 - magnet sensor input
 
   PreviousInterruptTime = millis(); //start timer
+
 }
 
 //=====================MAIN=============================================
 void loop(){
   switch (FSM_State) {
-       
        case ZERO_STATE:
         if(tmpFlag){
-          Serial.println("i'm in state: zero! waiting for instructions");
+          //Serial.println("i'm in state: zero! waiting for instructions");
           digitalWrite(LED1, LOW);	
           digitalWrite(LED2, LOW);
           tmpFlag = false;
         }        
          if(!MS){ //if arduino in slave mode - go to zero_state_slave
-          Serial.println("going into state: zero slave");
+          //Serial.println("going into state: zero slave");
           FSM_State = SLAVE_STATE;
          }
          if(SetupReq || RunReq){
           FSM_State = MOVE_TO_ONE_SIDE;
           tBeginMovement = millis(); //start watchdog for the target movement
           desiredIn = map(SLOW_VELOCITY, 0, maximumMotorVelocity, 0, MAX_PWM_VALUE); //set desired velocity before starting to move target
-          Serial.println("going into state: moving to one side");
+          //Serial.println("going into state: moving to one side");
           tmpFlag = true; //to get back into the condition on the beginning of the state when we get back
          }
         if(digitalRead(calButton) == HIGH){
@@ -207,7 +209,7 @@ void loop(){
          	delay(500);
          }
          if(timeGuard > maximumRunTime || stopSignal){ //if target arrived to one of the sides
-          Serial.print(" I think i'm at the other side! it took me "); Serial.print(timeGuard); Serial.println(" [ms] to get there...");
+          //Serial.print(" I think i'm at the other side! it took me "); Serial.print(timeGuard); Serial.println(" [ms] to get there...");
           stopMotors();
           DIR = !DIR; //change direction of motors
           if(SetupReq){
@@ -219,7 +221,7 @@ void loop(){
             FSM_State = MEASURE_LENGTH;
             RunLength = 0; //resets measurement of the distance the target has moved before run 
             tBeginMovement = millis(); //start watchdog for the target movement
-            Serial.println("going into state: measuring length! measuring..."); 
+            //Serial.println("going into state: measuring length! measuring..."); 
           }
           else if(RunReq){
             digitalWrite(LED1, LOW);	
@@ -229,7 +231,7 @@ void loop(){
         	digitalWrite(LED2, HIGH);
             FSM_State = RUN_TARGET;
             RunLength = 0; //resets measurement of the distance the target has moved before run 
-            desiredIn = map(reqVel, 0, maximumMotorVelocity, 0, MAX_PWM_VALUE); //set desired velocity before starting to move target
+            desiredIn = map(reqVel, 0, maximumMotorVelocity, 0, MAX_PWM_VALUE);//set desired velocity before starting to move target
           }
           else{            
             FSM_State = ZERO_STATE; //if something is wrong - go back to zero state
@@ -252,7 +254,7 @@ void loop(){
          	delay(500);
          }
          if(timeGuard > maximumRunTime || stopSignal){ // target probably arrived to the other edge of the rope 
-          Serial.print("i'm at the end! Distance is now: "); Serial.print(RunLength); Serial.println(" revolutions. stopping...");
+          //Serial.print("i'm at the end! Distance is now: "); Serial.print(RunLength); Serial.println(" revolutions. stopping...");
           stopMotors();
           FSM_State = SAVE_DATA;
           stopSignal = false; //reset stopSignal for the future
@@ -265,7 +267,7 @@ void loop(){
          break;
        
        case SAVE_DATA:
-         Serial.print("i'm in state: saving data! length of track is: "); Serial.print(RunLength); Serial.println(" revolutions. Saving...");
+         //Serial.print("i'm in state: saving data! length of track is: "); Serial.print(RunLength); Serial.println(" revolutions. Saving...");
          lTrack = RunLength;
          //save lTrack to EEPROM
          SetupReq = 0;
@@ -273,7 +275,7 @@ void loop(){
          break;
        
        case RUN_TARGET:
-         Serial.print("i'm in state: starting a run! distance target has gone is: "); Serial.print(RunLength); Serial.print("/"); Serial.print(lTrack); Serial.println(" revolutions. running...");
+         //Serial.print("i'm in state: starting a run! distance target has gone is: "); Serial.print(RunLength); Serial.print("/"); Serial.print(lTrack); Serial.println(" revolutions. running...");
          distance_from_edge = lTrack - RunLength;
          Serial.println(distance_from_edge);
          if(digitalRead(calButton) == HIGH || digitalRead(runButton) == HIGH){
@@ -282,7 +284,7 @@ void loop(){
          }
          if(distance_from_edge < (2 * SAFETY_DISTANCE)){
           desiredIn = 0.8 * desiredIn; //reducing velocity towards the edge
-            digitalWrite(LED1, LOW);	
+          digitalWrite(LED1, LOW);	
         	digitalWrite(LED2, LOW);
         	delay(500);
         	digitalWrite(LED1, HIGH);	
@@ -295,7 +297,7 @@ void loop(){
         	digitalWrite(LED2, HIGH);
          }
          if( distance_from_edge < SAFETY_DISTANCE || stopSignal){ //if target arrived to the other side 
-          Serial.print("i'm close to the edge! Distance is now: "); Serial.print(RunLength); Serial.println(" revolutions. stopping...");
+          //Serial.print("i'm close to the edge! Distance is now: "); Serial.print(RunLength); Serial.println(" revolutions. stopping...");
           stopMotors();
           FSM_State = ZERO_STATE;
           RunReq = 0;
@@ -309,7 +311,6 @@ void loop(){
          break;
        
        case SLAVE_STATE:
-         movemotor(DIR,sysIn,MAX_PWM_VALUE);
          break;  
        
        default:
@@ -324,79 +325,95 @@ void loop(){
   reqVel = analogRead(potPin) * maximumMotorVelocity / 1023;
 
   //Ethernet communication handling
-  EthernetClient client = server.available();  // try to get client
-  if(client){
-  	boolean currentLineIsBlank = true;
-	while (client.connected()) {
-        if (client.available()) {   // client data available to read
-			char c = client.read(); // read 1 byte (character) from client
-            if (req_index < (REQ_BUF_SZ - 1)){     // limit the size of the stored received HTTP request.  buffer first part of HTTP request in HTTP_req. leave last element in array as 0 to null terminate string (REQ_BUF_SZ - 1)
-                HTTP_req[req_index] = c;          // save HTTP request character
-                req_index++;
-            	}
-            // last line of client request is blank and ends with \n
-            // respond to client only after last line received
-            if (c == '\n' && currentLineIsBlank) {
-                // send a standard http response header
-                client.println("HTTP/1.1 200 OK");
-                // remainder of header follows below, depending on if
-                // web page or XML page is requested
-                // Ajax request - send XML file
-                unsigned int ind = StrContains(HTTP_req, "SaveVel=");
-                if(ind){
-                	 reqVel = 60;
-                	 //reqVel = float(HTTP_req[ind+1]+HTTP_req[ind+2]+ /  ropeRadius; 
-                	client.println("Content-Type: text/html");
-                    client.println("Connection: keep-alive");
-                    client.println();
-                }
-                if (StrContains(HTTP_req, "status")) {
-                    // send rest of HTTP header
-                    client.println("Content-Type: text/xml");
-                    client.println("Connection: keep-alive");
-                    client.println();
-                    client.println(FSM_State);
-                    //SetLEDs();
-                    // send XML file containing input states
-                    //XML_response(client);
-                	}
-                else {  // web page request
-                    // send rest of HTTP header
-                    client.println("Content-Type: text/html");
-                    client.println("Connection: keep-alive");
-                    client.println();
-                    // send web page
-                    openWebPage("index.htm", client);
-                    
-                    Serial.print(HTTP_req); // display received HTTP request on serial port
+  if(MS){
+    EthernetClient client = server.available();  // try to get client
+    if(client){
+    	boolean currentLineIsBlank = true;
+  	while (client.connected()) {
+          if (client.available()) {   // client data available to read
+  			char c = client.read(); // read 1 byte (character) from client
+              if (req_index < (REQ_BUF_SZ - 1)){     // limit the size of the stored received HTTP request.  buffer first part of HTTP request in HTTP_req. leave last element in array as 0 to null terminate string (REQ_BUF_SZ - 1)
+                  HTTP_req[req_index] = c;          // save HTTP request character
+                  req_index++;
+              	}
+              // last line of client request is blank and ends with \n
+              // respond to client only after last line received
+              if (c == '\n' && currentLineIsBlank) {
+                  // send a standard http response header
+                  client.println("HTTP/1.1 200 OK");
+                  // remainder of header follows below, depending on if
+                  // web page or XML page is requested
+                  // Ajax request - send XML file
+                  unsigned int ind = StrContains(HTTP_req, "SaveVel=");
+                  if(ind){
+                  	 reqVel = 60;
+                  	 //reqVel = float(HTTP_req[ind+1]+HTTP_req[ind+2]+ /  ropeRadius; 
+                  	client.println("Content-Type: text/html");
+                      client.println("Connection: keep-alive");
+                      client.println();
+                  }
+                  if (StrContains(HTTP_req, "status")) {
+                      // send rest of HTTP header
+                      client.println("Content-Type: text/xml");
+                      client.println("Connection: keep-alive");
+                      client.println();
+                      client.println(FSM_State);
+                      //SetLEDs();
+                      // send XML file containing input states
+                      //XML_response(client);
+                  	}
+                  else {  // web page request
+                      // send rest of HTTP header
+                      client.println("Content-Type: text/html");
+                      client.println("Connection: keep-alive");
+                      client.println();
+                      // send web page
+                      openWebPage("index.htm", client);
+                      
+                      //Serial.print(HTTP_req); // display received HTTP request on serial port
 
-                    req_index = 0;// reset buffer index and all buffer elements to 0
-                    StrClear(HTTP_req, REQ_BUF_SZ);
-                    break;
-                	}
-                }
-            // every line of text received from the client ends with \r\n
-            if (c == '\n'){ 		currentLineIsBlank = true; } // last character on line of received text, starting new line with next character read
-            else if (c != '\r'){   currentLineIsBlank = false; }// a text character was received from client
-        	} // end if (client.available())
-    	} // end while (client.connected())
-    delay(1);      // give the web browser time to receive the data
-    client.stop(); // close the connection	
-    Serial.println("Connection closed");
-    Serial.println(req_index);
-	} //end if(client)
+                      req_index = 0;// reset buffer index and all buffer elements to 0
+                      StrClear(HTTP_req, REQ_BUF_SZ);
+                      break;
+                  	}
+                  }
+              // every line of text received from the client ends with \r\n
+              if (c == '\n'){ 		currentLineIsBlank = true; } // last character on line of received text, starting new line with next character read
+              else if (c != '\r'){   currentLineIsBlank = false; }// a text character was received from client
+          	} // end if (client.available())
+      	} // end while (client.connected())
+      delay(1);      // give the web browser time to receive the data
+      client.stop(); // close the connection	
+      //Serial.println("Connection closed");
+      //Serial.println(req_index);
+  	} //end if(client)
+  }
 }//end loop
   
 //=====================FUNCTIONS=============================================
-boolean movemotor(boolean DIR, float pwmH, float pwmL){ //set motor velocity and direction
+boolean movemotor(boolean DIR, int pwmH, int pwmL){ //set motor velocity and direction
   
   if(pwmH > 255 || pwmL >255){  
-  	return 1; 
+  	pwmH = 0;  pwmL = 0;
   	} //illigal values
   
   digitalWrite(dirPin,DIR);
   analogWrite(pwmHPin, pwmH);
   analogWrite(pwmLPin, pwmL);
+  return 0;
+}
+
+boolean movemotorB(boolean DIR, int pwmH, int pwmL){ //send motor command to the slave arduino
+  if(MS){ 
+  Serial.print('d');
+  delay(120);
+  Serial.print(DIR);
+  delay(120);
+  Serial.print('i');
+  delay(120);
+  Serial.print(pwmH);
+  delay(120);
+}
   return 0;
 }
 
@@ -413,13 +430,12 @@ void MeasureVelocity(int deltaT){ //returns kalman filtered linear speed
   vAngular=2*pi*1000*Revolutions/(numOfMagnets*deltaT); //multiply 1/period by 1000 to get the time in seconds and the velocity in Hz
     
   float delta = vAngular - vAngularOld; 
-  int K = 0.5;
-  if(delta > 0){        K = K;  }
-    else if(delta < 0){ K = -K; }
-    else{               K = 0;  }
+  if(delta > 0){        kk = K;  }
+    else if(delta < 0){ kk = -K; }
+    else{               kk = 0;  }
    
-  measuredIn = ( vAngular + K * abs (delta ) ) * 255 / maximumMotorVelocity; //convert vAngular to PWM values
-  Revolutions=0;
+  measuredIn = ( vAngular + kk * abs (delta ) ) * 255 / maximumMotorVelocity; //convert vAngular to PWM values
+  Revolutions = 0;
   return; 
 }
 
@@ -437,49 +453,39 @@ boolean checkTime(int sampleTime){ //returns 1 if more than  SAMPLE_TIME has pas
     }
 }
 
-boolean movemotorB(boolean DIR, float pwmH, float pwmL){ //send motor command to the slave arduino
-  Serial.print('d');
-  delay(100);
-  Serial.print(DIR);
-  delay(100);
-  Serial.print('i');
-  delay(100);
-  Serial.print(pwmH);
-  delay(100);
-  return 0;
-}
+void serialEvent2
+() {
+  char temp_c;
+  int temp_i;
+  if(!MS){
+	  if(Serial2.available()) {
+      // get the new byte:
+      temp_c = (char)Serial.read();
+	  temp_i = Serial.parseInt();
 
-/*void serialEvent() {
-  char temp;
-  int tmp;
-  if (Serial.available()) {
-    // get the new byte:
-    temp = (char) Serial.read();
-   }
-   switch(temp){
-    case 'c': //calibration command
-      SetupReq = true;
-      break;
-    case 'r': //run command
-      tmp = Serial.parseInt();
-      reqVel = tmp;
-      RunReq = true;
-      break;
-    case 's': //stop the motors
-      stopSignal = true;
-      break;
-    case 'i':
-      tmp = Serial.parseInt();
-      sysIn = tmp;
-      break;
-    default:
-      Serial.println("error in message");
-      break;    
-  }
-}*/
+	  //Serial.print(temp_c);
+	  //Serial.println(temp_i);
+
+	   switch(temp_c){
+	    case 'd': 
+		  DIR = temp_i;
+	      break;
+	    case 'i': 
+        if( 	(temp_i - sysIn) > 0){        kk = K;  }
+        else if((temp_i - sysIn) < 0){ 		  kk = -K; }
+          else{           				      kk = 0;  	}
+        sysIn = sysIn + kk * abs(temp_i - sysIn);
+        movemotor(DIR,sysIn,MAX_PWM_VALUE);
+	      break;
+	    default:
+	      break;    	
+	  	}
+	  }
+	}
+}
   
 void stopMotors(){
-  movemotorB(DIR,0,MAX_PWM_VALUE);
+  movemotorB(DIR,999,MAX_PWM_VALUE);
   movemotor(DIR,0,MAX_PWM_VALUE);
 }
 
@@ -498,18 +504,18 @@ boolean beginXbee() {
 }
 
 boolean initSD(){ //initialize SD card
-    Serial.println("Initializing SD card...");
+    //Serial.println("Initializing SD card...");
     if (!SD.begin(4)) {
-        Serial.println("ERROR - SD card initialization failed!");
+        //Serial.println("ERROR - SD card initialization failed!");
         return 1;    // init failed
     }
-    Serial.println("SUCCESS - SD card initialized.");
+    //Serial.println("SUCCESS - SD card initialized.");
     // check for index.htm file
     if (!SD.exists("index.htm")) {
-        Serial.println("ERROR - Can't find index.htm file!");
+        //Serial.println("ERROR - Can't find index.htm file!");
         return 1;  // can't find index file
     }
-    Serial.println("SUCCESS - Found index.htm file.");
+    //Serial.println("SUCCESS - Found index.htm file.");
 }
 
 boolean openWebPage(char *Tfilename, EthernetClient cl){
