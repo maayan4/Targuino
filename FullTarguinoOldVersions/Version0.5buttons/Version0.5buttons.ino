@@ -140,7 +140,7 @@ void setup(){
   pinMode(calButton, INPUT);
   pinMode(LED1, OUTPUT);
   pinMode(LED2, OUTPUT);
-
+ 
 
   //initialize reset pin
   digitalWrite(resetPin,           HIGH); //switching to LOW will reset the arduino
@@ -174,14 +174,15 @@ void loop(){
        case ZERO_STATE:
         if(tmpFlag){
           //Serial.println("i'm in state: zero! waiting for instructions");
-          digitalWrite(LED1, LOW);	
-          digitalWrite(LED2, LOW);
           tmpFlag = false;
+          digitalWrite(LED1, LOW);	
+  		  digitalWrite(LED2, LOW);
         }        
          if(!MS){ //if arduino in slave mode - go to zero_state_slave
           //Serial.println("going into state: zero slave");
           FSM_State = SLAVE_STATE;
          }
+         else{ //if arduino is master
          if(SetupReq || RunReq){
           FSM_State = MOVE_TO_ONE_SIDE;
           tBeginMovement = millis(); //start watchdog for the target movement
@@ -192,14 +193,15 @@ void loop(){
         if(digitalRead(calButton) == HIGH){
         		SetupReq = true;
         		digitalWrite(LED1, HIGH);
-        		delay(1000);	
+        		delay(500);	
          }
         if(digitalRead(runButton) == HIGH){
             RunReq = true;
         	digitalWrite(LED1, HIGH);	
         	digitalWrite(LED2, HIGH);
-        	delay(1000);
+        	delay(500);
         }
+	 }
          break;
        
        case MOVE_TO_ONE_SIDE:
@@ -277,7 +279,7 @@ void loop(){
        case RUN_TARGET:
          //Serial.print("i'm in state: starting a run! distance target has gone is: "); Serial.print(RunLength); Serial.print("/"); Serial.print(lTrack); Serial.println(" revolutions. running...");
          distance_from_edge = lTrack - RunLength;
-         Serial.println(distance_from_edge);
+         //Serial.println(distance_from_edge);
          if(digitalRead(calButton) == HIGH || digitalRead(runButton) == HIGH){
          	stopSignal = true;
          	delay(500);
@@ -304,10 +306,13 @@ void loop(){
           stopSignal = false; //reset stopSignal for the future
           break;
         }
-         if(checkTime(VMEASURE_SAMPLE_TIME)){  MeasureVelocity(VMEASURE_SAMPLE_TIME);}
-         myPID.Compute();
-         movemotorB(DIR,sysIn,MAX_PWM_VALUE);
-         movemotor(DIR,sysIn,MAX_PWM_VALUE);
+         if(checkTime(VMEASURE_SAMPLE_TIME)){  
+         	MeasureVelocity(VMEASURE_SAMPLE_TIME);
+
+         }
+          myPID.Compute();
+          movemotorB(DIR,sysIn,MAX_PWM_VALUE);
+          movemotor(DIR,sysIn,MAX_PWM_VALUE);
          break;
        
        case SLAVE_STATE:
@@ -394,7 +399,7 @@ void loop(){
 boolean movemotor(boolean DIR, int pwmH, int pwmL){ //set motor velocity and direction
   
   if(pwmH > 255 || pwmL >255){  
-  	pwmH = 0;  pwmL = 0;
+  	pwmH = 0;
   	} //illigal values
   
   digitalWrite(dirPin,DIR);
@@ -406,13 +411,13 @@ boolean movemotor(boolean DIR, int pwmH, int pwmL){ //set motor velocity and dir
 boolean movemotorB(boolean DIR, int pwmH, int pwmL){ //send motor command to the slave arduino
   if(MS){ 
   Serial.print('d');
-  delay(120);
+  delay(100);
   Serial.print(DIR);
-  delay(120);
+  delay(100);
   Serial.print('i');
-  delay(120);
+  delay(100);
   Serial.print(pwmH);
-  delay(120);
+  delay(100);
 }
   return 0;
 }
@@ -453,12 +458,11 @@ boolean checkTime(int sampleTime){ //returns 1 if more than  SAMPLE_TIME has pas
     }
 }
 
-void serialEvent2
-() {
+void serialEvent() {
   char temp_c;
   int temp_i;
   if(!MS){
-	  if(Serial2.available()) {
+	  if(Serial.available()) {
       // get the new byte:
       temp_c = (char)Serial.read();
 	  temp_i = Serial.parseInt();
@@ -471,11 +475,9 @@ void serialEvent2
 		  DIR = temp_i;
 	      break;
 	    case 'i': 
-        if( 	(temp_i - sysIn) > 0){        kk = K;  }
-        else if((temp_i - sysIn) < 0){ 		  kk = -K; }
-          else{           				      kk = 0;  	}
-        sysIn = sysIn + kk * abs(temp_i - sysIn);
-        movemotor(DIR,sysIn,MAX_PWM_VALUE);
+          sysIn = temp_i;
+          //Serial.println(sysIn);
+          movemotor(DIR,sysIn,MAX_PWM_VALUE);
 	      break;
 	    default:
 	      break;    	

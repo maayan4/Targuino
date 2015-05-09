@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="targuino.css" media="all" />
+    <script type="text/JavaScript" src="targuino.js"></script> 
+    <title>Targuino - Target control system</title>
+</head>
+<body onload="UpdateStatus()">
+    <h1>Targuino - Dynamic target control</h1>
+    <p>Select scenario:</p>
+    <div class="Tabs segmentedControlBase">
+    <div class="buttonSegmentedControl" id="LTR" onclick="ScenarioChange(LTR)"><span>Left to right once</span></div>
+    <div class="buttonSegmentedControl" id="RTL" onclick="ScenarioChange(RTL)"><span>Right to left once</span></div>
+    <div class="buttonSegmentedControl" id="KR" onclick="ScenarioChange(KR)"><span>Keep running</span></div>
+    </div>
+    <div id="velocity_div">
+        <form id="velocity_form" oninput="velocity.value = vel_input_range.valueAsNumber">
+            <input type="range" id="vel_input_range" min="0" max="3.5" step="0.1" value="1">
+            <output form="velocity_form" for="vel_input_range" name="velocity">1</output>/3.5 [m/s]
+        </form>
+    </div>
+    <div class="control_buttons">
+        <button type="button" id="start_cal" onclick="StartCal()">Begin Calibration sequence</button>
+            <button type="button" id="Start_running" onclick="StartRun()">Begin running sequence</button>
+            <button type="button" id="stop_button" onclick="StopMotors()">STOP</button>
+    </div>
+    <div>
+    <p class="small_text">System status:</p>
+    <textarea readonly id="StatTextArea">System is OFF or not responding &#13;&#10;System is ON! </textarea>
+    <button type="button" id="clear_status" onclick="ClearStatus()">Clear status box</button>
+    </div>
+</body>
+</html>
