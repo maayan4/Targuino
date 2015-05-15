@@ -1,7 +1,4 @@
-var Scenario = "KR";
 var nocache = "";
-var RTL_vel = 0;
-var LTR_vel = 0;
 
 setInterval("UpdateStatus()",1000); //calls UpdateStatus again after 1000 [ms]. This actually makes the function repeats periodically.
 function UpdateStatus(){
@@ -39,18 +36,19 @@ function Stop(){
 }
 
 function SaveRTLVel(){
+    document.getElementsByName("velocity").value = document.getElementById("RTL_vel_range").nodeValue;
     nocache = "&nocache=" + Math.random();
-    var velocity = document.getElementsByID("vel_input_textbox").value;
+    var velocity = document.getElementById("RTL_vel_range").value;
     var request = new XMLHttpRequest();
-    request.open("GET", "RTL_vel=" + RTL_vel + " " + nocache,       true);
+    request.open("GET", "RTL_vel=" + velocity + " " + nocache,       true);
     request.send(null);
 }
 
 function SaveLTRVel(){
     nocache = "&nocache=" + Math.random();
-    var velocity = document.getElementsByID("vel_input_textbox").value;
+    var velocity = document.getElementById("LTR_vel_range").value;
     var request = new XMLHttpRequest();
-    request.open("GET", "LTR_vel=" + LTR_vel + " " + nocache,       true);
+    request.open("GET", "LTR_vel=" + velocity + " " + nocache,       true);
     request.send(null);
 }
 
@@ -62,29 +60,3 @@ function ChangeStatus(newStatus){
     document.getElementById("StatTextArea").innerHTML = document.getElementById("StatTextArea").innerHTML + "&#13;&#10;" + newStatus;
 }
     
-
-function ScenarioChange(Scen){
-    switch(Scen){
-        case "LTR":
-            Scenario = "LTR";
-            break;
-        case "RTL":
-            Scenario = "LTR";
-            break;
-        case "KR":
-            Scenario = "KR";
-            break;
-        default:
-            Scenario = "KR";
-    }
-    var SCreq = new XMLHttpRequest(); 
-    SCreq.onreadystatechange = function(){
-        if (this.readyState == 4 && this.status == 200){
-            if(this.responseText != null){
-                //ChangeStatus(this.responseText);
-            }  
-        }
-    }
-    SCreq.open("GET", "Scenario=" + Scenario + " " + nocache,       true);
-    SCreq.send(null);
-}

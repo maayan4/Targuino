@@ -7,19 +7,14 @@
 </head>
 <body onload="UpdateStatus()">
     <h1>Targuino - Dynamic target control</h1>
-    <p>Select scenario:</p>
-    <div class="Tabs segmentedControlBase">
-    <div class="buttonSegmentedControl" id="LTR" onclick="ScenarioChange(LTR)"><span>Left to right once</span></div>
-    <div class="buttonSegmentedControl" id="RTL" onclick="ScenarioChange(RTL)"><span>Right to left once</span></div>
-    <div class="buttonSegmentedControl" id="KR" onclick="ScenarioChange(KR)"><span>Keep running</span></div>
-    </div>
+    <IMG src="targuino.jpg" id="logo">
     <div id="velocity_div">
-        <form id="velocity_form" oninput="RTL_vel.value = RTL_vel_range.valueAsNumber">
-            <input type="range" id="RTL_vel_range" min="0" max="3.5" step="0.1" value="1">
-            Right to left velocity:<output form="velocity_form" for="RTL_vel_range" name="velocity">1</output>/3.5 [m/s]
+        <form id="velocity_form" oninput="velocity1.value = RTL.valueAsNumber">
+            <input type="range" name="RTL" id="RTL_vel_range" min="0" max="3.5" step="0.1" value="1" oninput="SaveRTLVel()">
+            Right to left velocity:<output form="velocity_form" for="RTL_vel_range" name="velocity1">1</output>/3.5 [m/s]
         </form>
-        <form id="velocity_form2" oninput="LTR_vel.value = LTR_vel_range.valueAsNumber">
-            <input type="range" id="LTR_vel_range" min="0" max="3.5" step="0.1" value="1">
+        <form id="velocity_form2" oninput="velocity2.value = LTR.valueAsNumber">
+            <input type="range" name="LTR" id="LTR_vel_range" min="0" max="3.5" step="0.1" value="1" oninput="SaveLTRVel()">
             Left to right velocity: <output form="velocity_form2" for="LTR_vel_range" name="velocity2">1</output>/3.5 [m/s]
         </form>
     </div>
