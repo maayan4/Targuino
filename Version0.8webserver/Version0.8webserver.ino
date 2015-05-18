@@ -2,6 +2,8 @@
 #include <SPI.h>
 #include <Ethernet.h>
 #include <SD.h>
+#include <stdio.h>
+#include <string.h>
 
 #define DEBUG             0
 
@@ -16,16 +18,14 @@
 #define MSpin             14 //pin to determine whether the unit is in master or slave mode
 #define MagnetSensorPin   19 //pin to magnet hall sensor
 
-//leds and temporary buttons/potentiometers
-/*#define calButton		  29
-#define runButton		  31
-#define LED1			  35
-#define LED2 	 		  37	*/	
-
 //Analog Pins
 #define PSpin            A12 //motor driver power supply pin
 #define CSPin            A13 //motor driver current sensor pin
 //#define potPin            A2 //potentiometer pin (optional)
+
+//LEDS
+#define LED1        35
+#define LED2        37    
 
 //State machine
 #define numOfStates         8
@@ -47,11 +47,6 @@
 #define Ki                3.316
 #define Kd                0.02872
 
-//Scenarios
-#define KEEP_RUNNING              0
-#define RIGHT_TO_LEFT             1
-#define LEFT_TO_RIGHT             2
-
 //Other Constants
 #define pi                      3.14159
 #define radius                  6.5 //[cm] radius of the wheel. represents velocity at the end point
@@ -67,38 +62,61 @@
 
 //XBEE
 #define XBEE_DATA_RATE 57600
+
 //XBEE messages
 //Master->slave
-#define GOTO_CALIBRATION    0x11
-#define GOTO_RUN            0x12
-#define GOTO_IDLE           0x13
-#define SWITCH_TO_COAST     0x14
-#define KEEP_ALIVE          0x15
-#define LTR_VELOCITY_UPDATE 0x16
+#define GOTO_CALIBRATION    0x10
+#define GOTO_RUN            0x11
+#define GOTO_IDLE           0x12
+#define SWITCH_TO_COAST     0x13
+#define KEEP_ALIVE          0x14
+#define LTR_VELOCITY_UPDATE 0x15
+#define LTR_DELAY_UPDATE    0x16
 #define PULL_SLOWLY         0x17
+#define STOP_MOTOR          0x18
+#define START_PULLING       0x19
+
 //Slave->master
-#define ACK_CALIB           0x21
-#define ACK_RUN             0x22
-#define ACK_IDLE            0x23
-#define ACK_COAST           0x24
-#define DONE_PULLING        0x25
-#define ACK_KA              0x26
-#define ACK_VEL             0x27
-#define ACK_PULL            0x28
+#define ACK_CALIB           0x20
+#define ACK_RUN             0x21
+#define ACK_IDLE            0x22
+#define ACK_COAST           0x23
+#define DONE_PULLING        0x24
+#define ACK_KA              0x25
+#define ACK_VEL             0x26
+#define ACK_PULL            0x27
+#define ACK_STOP            0x28
+#define ACK_DELAY           0x29
 
 //HTTP messages parsing cases:
 #define UPDATE_VELOCITY_RTL       0x50
 #define UPDATE_VELOCITY_LTR       0x51
-#define UPDATE_SCENARIO           0x52
-#define UPDATE_BEGIN_CALIBRATION  0x53
-#define UPDATE_BEGIN_RUNNING      0x54
-#define UPDATE_STOP               0x55
+#define UPDATE_BEGIN_CALIBRATION  0x52
+#define UPDATE_BEGIN_RUNNING      0x53
+#define UPDATE_STOP               0x54
+#define UPDATE_STATUS             0x55
+#define UPDATE_CSS				  0x56
+#define UPDATE_JPG				  0x57
+#define UPDATE_JS				  0x58
+
+//HTTP message strings
+#define MSG_RTL_VEL         "RTL_vel="
+#define MSG_LTR_VEL         "LTR_vel="
+#define MSG_CAL             "BeginCalibration"
+#define MSG_RUN             "BeginRunning"
+#define MSG_STOP            "Stop"
+#define MSG_STATUS          "status"
+#define MSG_CSS             ".css"
+#define MSG_JS              ".js"
+#define MSG_JPG             ".jpg"
 
 //Ethernet
-#define REQ_BUF_SZ          100 // size of buffer used to capture HTTP requests
+#define REQ_BUF_SZ          80 // size of buffer used to capture HTTP requests
 #define WEBSITE_FILENAME    "targuino.htm" //name of the main html file on the SD card
 #define JAVASCRIPT_FILENAME "targuino.js" //javascript filename
 #define CSS_FILENAME        "targuino.css" //css filename
+#define JPG_FILENAME        "targuino.jpg" //jpg filename
+#define XML_FILENAME        "targuino.xml"
 
 //Watchdogs and timers
 #define DELAY_BETWEEN_KA    3000 //time between keep-alive messages
@@ -126,36 +144,40 @@ unsigned int maximumRunTime         = 0; //this is them maximum time the motor c
 unsigned int PrevKAmsgSent          = 0; //stores the last time KEEP-ALIVE msg was sent
 int numOfKAmsgs            = 0; //stores the number of keealive msgs that were sent
 
-//PID Variables
+/* PID Variables*/
 double desiredIn  = 0; // this variable stores the desired velocity in PWM range (0-255)
 double sysIn      = 0; //the calculated input to the driver
 PID myPID(&measuredIn, &sysIn, &desiredIn, Kp, Ki, Kd, DIRECT);
 
 //system state variables
 boolean MS              = 0; //is arduino in Master or Slave mode (0 for slave mode, 1 for master)
-byte FSM_State          = 0; //system's currect state in the state machine. default value is 0 - initial state (see #define)
+byte FSM_State          = ZERO_STATE; //system's currect state in the state machine. default value is ZERO_STATE - initial state (see #define)
 byte sysMode            = 0; //this byte indicate two thing: 1) is this motor MS/SL   2) is the system in idle, calibration or run mode
-byte currentScenario    = KEEP_RUNNING; //this variable keeps the current chosen scenario. default is to keep running from side to side
 float velLTR            = 0; //the velocity the user has requested for the run from left to right
 float velRTL            = 0; //the velocity the user has requested for the run from right to left
 String TarStatus        = ""; //string that contains system status
-boolean openGate        = false; //a general flag which uses to control whether the system goes to the next stage
+boolean stopSignal      = false; //a general flag which uses to control whether the system goes to the next stage
+byte LTR_delay          = 0; //delay before slave starts to pull. in [ms]
+byte RTL_delay          = 0; //delay before master starts to pull. in [ms]
 
 //Ethernet
-byte mac[] 					  	    = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
-IPAddress 				          ip(192, 168, 0, 177);
-EthernetServer   			      server(80);
-char HTTP_req[REQ_BUF_SZ] 	= {0};  	// 0 = null in ascii
-char req_index   			      = 0;       // index into HTTP_req buffer
+byte mac[] 										    	   = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
+IPAddress 				 				  			       ip(192, 168, 0, 177);
+EthernetServer   			  				   			   server(80);
+char HTTP_req[REQ_BUF_SZ] 						    	   = {0};  	// 0 = null in ascii
+char req_index   			 			  			       = 0;       // index into HTTP_req buffer
+typedef struct parsedResult {byte msgType; float velocity;} parsedResult;
+
 
 //XBEE variables
-byte msgToSend[]              = {0, 0, 0};
-byte receivedMsg[]            = {0, 0, 0};
+byte msgToSend[3]              = {0, 0, 0};
+byte receivedMsg[3]            = {0, 0, 0};
 boolean isXbeeAlive           = 0;
 boolean gotAck                = 0;
 
 //SD card
 File TServerFile;
+File xmlFile;
 
 //Other variables - delete if unnecessary
 int faultflag           = 0; //0- OK, 1-short, 2-overheat, 3-undervoltage
@@ -163,6 +185,7 @@ int sensorValue         = 0;
 float current           = 0;
 float CS                = 0;
 boolean tmpFlag         = true;
+int tempAcc             =0;
 
 //=====================SETUP=============================================
 void setup(){
@@ -185,29 +208,28 @@ void setup(){
   pinMode(resetPin,         OUTPUT);
   pinMode(MSpin,            INPUT);
 
-  //init buttons and leds
-  pinMode(runButton, INPUT);
-  pinMode(calButton, INPUT);
+  //init leds
   pinMode(LED1, OUTPUT);
   pinMode(LED2, OUTPUT);
  
   //initialize reset pin
   digitalWrite(resetPin,           HIGH); //switching to LOW will reset the arduino
+
+  Serial2.println("Pins initialized");
+
   //CHECK MASTER/SLAVE MODE
-  if(digitalRead(MSpin) ==  HIGH){  MS = 1; }
-  
-  if(MS){
-    //determine initial system mode
+  if(digitalRead(MSpin) ==  HIGH){  
+    MS = 1;
+    Serial2.println("This is the master motor");
     sysMode = MS_IDLE;  
     //initialize Ethernet server
     Ethernet.begin(mac, ip);
     server.begin();
-  	initSD();
+    initSD();
   }
-  else if(!MS){
+  else {
     sysMode = SL_IDLE;
-    TarStatus += "going into state: zero slave &#13;&#10;";
-    Serial2.println(TarStatus);
+    Serial2.println("This is the slave motor");
   }
   
   myPID.SetOutputLimits(0,200);  //tell the PID to range between 0 and 255 (PWM range)    // some arbitrary value I've decided of. 255 is too much?
@@ -230,21 +252,30 @@ void loop(){
   switch (FSM_State) {
    case ZERO_STATE:
     if(tmpFlag){
-      TarStatus += "i'm in state: zero! waiting for instructions &#13;&#10;";
-      Serial2.println(TarStatus);
+      Serial2.println("i'm in state: zero! waiting for instructions");
       tmpFlag = false;
-      blinkLEDS(500 , 3, 1);
+      //blinkLEDS(500 , 3, 1);
     }
     switch(sysMode){
       case MS_IDLE:
         CurrentTime = millis();
         if(CurrentTime - PrevKAmsgSent > DELAY_BETWEEN_KA){
           sendXBEEmsg(KEEP_ALIVE);
+          delay(100);
+          sendXBEEmsg(LTR_VELOCITY_UPDATE);
+          delay(100);
+          sendXBEEmsg(velLTR);
+          delay(100);
+          sendXBEEmsg(LTR_DELAY_UPDATE);
+          delay(100);
+          sendXBEEmsg(LTR_delay);
           PrevKAmsgSent = CurrentTime;
           numOfKAmsgs++; //this number is zeroed if we get KA-ACK (this is handled in SerialEvent)
         }
         if(numOfKAmsgs > KA_WATCHDOG){
-          TarStatus += "ERROR - XBEE Slave error: no response from slave";
+          if(numOfKAmsgs - KA_WATCHDOG < 20){ 
+          }
+          Serial2.println("ERROR - XBEE Slave error: no response from slave");
           numOfKAmsgs = 0;
         }
         break;
@@ -264,12 +295,8 @@ void loop(){
           sysMode = MS_IDLE;
           break;    
         }
-        sendXBEEmsg(LTR_VELOCITY_UPDATE);
-        delay(500);
-        sendXBEEmsg(velLTR);
-        delay(500);
+        Serial2.println("GO_TO_RUN msg sent. waiting for response...");
         sendXBEEmsg(GOTO_RUN);
-        Serial2.println("GO_TO_CALIB msg sent. waiting for response...");
         FSM_State = WAIT_FOR_RESPONSE;
         break;
       case SL_RUNNING:
@@ -321,7 +348,9 @@ void loop(){
 
     if(distance_from_edge < SAFETY_DISTANCE || stopSignal){ //if target arrived to the other side 
       Serial2.print("i'm too close to the edge! Distance is now: "); Serial2.print(RunLength); Serial2.println(" revolutions. stopping...");
-      stopMotor();
+      delay(LTR_delay);
+      coastMotor();
+      sendXBEEmsg(START_PULLING);
       FSM_State = WAIT_FOR_RESPONSE;
       stopSignal = false; //reset stopSignal for the future
       break;
@@ -329,112 +358,139 @@ void loop(){
     if(checkTime(VMEASURE_SAMPLE_TIME)){  
       MeasureVelocity(VMEASURE_SAMPLE_TIME);
       myPID.Compute();
-            movemotorB(DIR,sysIn,MAX_PWM_VALUE);
-            movemotor(DIR,sysIn,MAX_PWM_VALUE);
+      movemotor(DIR,sysIn,MAX_PWM_VALUE);
      }
     break;
-
-      /* case MOVE_TO_ONE_SIDE:
-         timeGuard = millis() - tBeginMovement;
-         if(digitalRead(calButton) == HIGH || digitalRead(runButton) == HIGH){
-         	stopSignal = true;
-         	delay(500);
-         }
-         if(timeGuard > maximumRunTime || stopSignal){ //if target arrived to one of the sides
-          Serial2.print(" I think i'm at the other side! it took me "); Serial2.print(timeGuard); Serial2.println(" [ms] to get there...");
-          stopMotors();
-          DIR = 1; //change direction of motors
-          if(calReq){
-            digitalWrite(LED1, LOW);	
-        	  digitalWrite(LED2, LOW);
-        	  delay(1000);
-        	  digitalWrite(LED1, HIGH);	
-        	  digitalWrite(LED2, LOW);    
-            FSM_State = MEASURE_LENGTH;
-            RunLength = 0; //resets measurement of the distance the target has moved before run 
-            tBeginMovement = millis(); //start watchdog for the target movement
-            Serial2.println("going into state: measuring length! measuring..."); 
-          }
-          else if(RunReq){
-            digitalWrite(LED1, LOW);	
-          	digitalWrite(LED2, LOW);
-          	delay(1000);
-          	digitalWrite(LED1, HIGH);	
-          	digitalWrite(LED2, HIGH);
-            FSM_State = RUN_TARGET;
-            RunLength = 0; //resets measurement of the distance the target has moved before run 
-            desiredIn = map(reqVel, 0, maximumMotorVelocity, 0, MAX_PWM_VALUE);//set desired velocity before starting to move target
-          }
-          else{            
-            FSM_State = ZERO_STATE; //if something is wrong - go back to zero state
-            } 
-          Revolutions = 0; //reset number of revolutions
-          stopSignal = false; //reset stopSignal for the future
-          break;
-         }
-         if(checkTime(VMEASURE_SAMPLE_TIME)){  
-         	MeasureVelocity(VMEASURE_SAMPLE_TIME);
-         	myPID.Compute();
-         	movemotorB(DIR,sysIn,MAX_PWM_VALUE);
-         	movemotor(DIR,sysIn,MAX_PWM_VALUE); 
-         }
-         
-         break;
-
-       case RUN_TARGET:
-
-         break;
        
-       case SLAVE_STATE:
-         break;  */
-       
-       default:
-         FSM_State = ZERO_STATE;
-         stopMotors(); //just in case something happens...
-         break;
+   default:
+    stopMotor(); //just in case something happens...
+    Serial2.print("Got into default mode. FSM_state = "); Serial2.println(FSM_State);
+    FSM_State = ZERO_STATE;
+    break;
 	} 
   //current sensor
   sensorValue = analogRead(CSPin);  
   current = ( map(sensorValue, 0, 1023, 0, 5) - 2.5) / 0.066;
-  reqVel = analogRead(potPin) * maximumMotorVelocity / 1023;
+
+  //Display General status
+  tempAcc++;
+  if(tempAcc > 200){
+    //Serial2.print("sysmode is: "); Serial2.print(sysMode); Serial2.print(" FSM_State is: "); Serial2.print(FSM_State); Serial2.print(" RTL_vel="); Serial2.print(velRTL); Serial2.print(" LTR_vel="); Serial2.println(velLTR);     
+    tempAcc = 0;
+  }
+  
 
   //Ethernet communication handling
   if(MS){
     EthernetClient client = server.available();  // try to get client
     if(client){
-    	boolean currentLineIsBlank = true;
-  	  while(client.connected()){
+    	//Serial2.println("client found!");
+      boolean currentLineIsBlank = true;
+  	  while(client.connected()){ 
         if(client.available()){   // client data available to read
 			    char c = client.read(); // read 1 byte (character) from client
-          if (req_index < (REQ_BUF_SZ - 1)){     // limit the size of the stored received HTTP request.  buffer first part of HTTP request in HTTP_req. leave last element in array as 0 to null terminate string (REQ_BUF_SZ - 1)
+          //Serial2.print(c);
+          //this if and elseif are due to (apparent) lack of memory. REQ_BUF_SZ > 100 causes arduino to reset. So we decided to take only the first 80 bytes
+           if(req_index < REQ_BUF_SZ - 1){  /* limit the size of the stored received HTTP request.  buffer first part of HTTP request in HTTP_req. leave last element in array as 0 to null terminate string (REQ_BUF_SZ - 1)*/
               HTTP_req[req_index] = c;          // save HTTP request character
               req_index++;
           	}
           // last line of client request is blank and ends with \n
           // respond to client only after last line received
           if (c == '\n' && currentLineIsBlank) {
-              unsigned int ind = StrContains(HTTP_req, "SaveVel=");
-              if(ind){
-              	reqVel = float(HTTP_req[ind+1]+HTTP_req[ind+2])/ropeRadius;
-                sendHTTPResponse('h',client);
-                client.println(reqVel);
-              }
-              if(StrContains(HTTP_req, "status")) {
-                sendHTTPResponse('x',client);  
-                respondXML();
-                  // send XML file containing input states
-                  //XML_response(client);
-              }
-              else{  // web page request
-                // send rest of HTTP header
-                sendHTTPResponse('h',client);
-                // send web page
-                openWebPage("index.htm", client);
-                Serial2.print(HTTP_req); // display received HTTP request on serial port
-                req_index = 0;// reset buffer index and all buffer elements to 0
-                StrClear(HTTP_req, REQ_BUF_SZ);
+              
+              parsedResult out = parseHTTPmsg(HTTP_req);
+
+              switch(out.msgType){
+                case UPDATE_VELOCITY_RTL:
+                  velRTL = out.velocity / ropeRadius;
+                  Serial2.print("RTL velocity has been updated to: "); Serial2.println(velRTL);
+                  break;
+
+                case UPDATE_VELOCITY_LTR:
+                  velLTR = out.velocity / ropeRadius;
+                  Serial2.print("LTR velocity has been updated to: "); Serial2.println(velLTR);
+                  break;
+
+                case UPDATE_BEGIN_CALIBRATION:
+                  sysMode = MS_CALIBRATION;
+                  sendXBEEmsg(GOTO_CALIBRATION);
+                  FSM_State = WAIT_FOR_RESPONSE;
+                  desiredIn = SLOW_VELOCITY;
+                  Serial2.println("BeginCalibration has been received");
+                  break;
+
+                case UPDATE_BEGIN_RUNNING:
+                  sysMode = MS_RUNNING;
+                  sendXBEEmsg(GOTO_RUN);
+                  FSM_State = WAIT_FOR_RESPONSE;
+                  Serial2.println("BeginRunning has been received");
+                  break;
+
+                case UPDATE_STOP:
+                  if(sysMode == MS_CALIBRATION && FSM_State == PULL_AND_COUNT){ //if master is pulling in calibration mode
+                    stopSignal == true;
+                    Serial2.println("StopSignal acknowledge");
+                    break;
+                  }
+                  else if(sysMode == MS_CALIBRATION && FSM_State == WAIT_FOR_RESPONSE){ //if slave is pulling in calibration mode
+                    sendXBEEmsg(STOP_MOTOR);
+                    Serial2.println("stop message has been sent");
+                    break;
+                  }
+                  else if(sysMode == MS_RUNNING && FSM_State == PULL_STATE){ //if master is pulling in running mode
+                    stopSignal == true;
+                    Serial2.println("StopSignal acknowledge");
+                    break;
+                  }
+                  else if(sysMode == MS_RUNNING && FSM_State == WAIT_FOR_RESPONSE){ //if slave is pulling in running mode
+                    stopSignal == true;
+                    Serial2.println("StopSignal acknowledge");
+                    break;
+                  }
+                  else if(sysMode == MS_IDLE){
+                    Serial2.println("StopSignal acknowledge but no action was taken");
+                    break; 
+                  }
+                  break;
+
+                case UPDATE_STATUS:
+                  sendHTTPResponse('x',client);
+                  sendFile(XML_FILENAME,client);
+                  //Serial2.println("XML file has been sent");
+                  break;
+                
+                case UPDATE_CSS:
+                  Serial2.println("sending css...");
+                  sendHTTPResponse('h',client);
+                  sendFile(CSS_FILENAME, client);                   
+                  break;
+
+                case UPDATE_JS:
+                  Serial2.println("sending js...");
+                  sendHTTPResponse('h',client);
+                  sendFile(JAVASCRIPT_FILENAME, client);   
+                  break;
+                
+                case UPDATE_JPG:
+                  Serial2.println("sending jpeg...");
+                  sendHTTPResponse('h',client);
+                  // send file
+                  sendFile(JPG_FILENAME, client);  
+                  break;
+
+                default:
+                  // send rest of HTTP header
+                  Serial2.println("default message");
+                  sendHTTPResponse('h',client);
+                  // send web page
+                  sendFile(WEBSITE_FILENAME, client);
                 break;
+
               }
+              req_index = 0;// reset buffer index and all buffer elements to 0
+              StrClear(HTTP_req, REQ_BUF_SZ);
+              break;
             }
             // every line of text received from the client ends with \r\n
             if (c == '\n'){ 		currentLineIsBlank = true; } // last character on line of received text, starting new line with next character read
@@ -443,7 +499,7 @@ void loop(){
       } // end while (client.connected())
       delay(1);      // give the web browser time to receive the data
       client.stop(); // close the connection	
-      Serial2.println("Connection closed");
+      //Serial2.println("Connection closed");
   	} //end if(client)
   }
 }//end loop
@@ -499,6 +555,7 @@ boolean checkTime(int sampleTime){ //returns 1 if more than  SAMPLE_TIME has pas
 
 void serialEvent() {
   byte temp_msg = 0;
+  byte processedMSG = 0;
   
   if(Serial.available() > 2){ //if there are 3 bytes or more in the buffer
     processedMSG = procRecMsg();
@@ -525,6 +582,7 @@ void serialEvent() {
       break;
 
     case GOTO_IDLE:
+      sysMode = SL_IDLE;
       FSM_State = ZERO_STATE;
       sendXBEEmsg(ACK_IDLE);
       break;
@@ -546,49 +604,64 @@ void serialEvent() {
       break;
 
     case ACK_RUN:
-      ///////
+      coastMotor();
+      sendXBEEmsg(PULL_SLOWLY);
+      FSM_State = WAIT_FOR_RESPONSE;
       break;
 
     case ACK_IDLE:
+      sysMode = MS_IDLE;
       FSM_State = ZERO_STATE;
       break; 
 
-    case ACK_COAST:
+    case ACK_COAST: //only master motor get ack_coast
       switch(sysMode){
         case MS_CALIBRATION:
-          ///
+          desiredIn = convertVelToInput(SLOW_VELOCITY);
+          FSM_State = PULL_AND_COUNT;
           break;
         case MS_RUNNING:
-          ///
-          break;
-        case SL_RUNNING:
-          ////
+          desiredIn = convertVelToInput(velRTL);
+          FSM_State = PULL_STATE;
           break;
         default:
+          Serial2.println("ERROR - ACK_COAST receievd but I don't know what to do with it");
+          FSM_State = MS_IDLE;
           break; //do nothing
       }
       break;
 
     case DONE_PULLING:
-      ///////
+      sendXBEEmsg(SWITCH_TO_COAST);
+      FSM_State = WAIT_FOR_RESPONSE;
       break;  
 
     case LTR_VELOCITY_UPDATE:
-
-      if(Serial.available > 2){
+      if(Serial.available() > 2){
         processedMSG = procRecMsg();  
         clrXBEErecBuff();
         velLTR = processedMSG;
-        break;
       }
       else{
         Serial2.println("Error - LTR velocity was not received");
       }
+      break;
       
     case PULL_SLOWLY:
       sendXBEEmsg(ACK_PULL);
       desiredIn = convertVelToInput(SLOW_VELOCITY);
       FSM_State = PULL_STATE;
+      break;
+
+    case LTR_DELAY_UPDATE:
+      if(Serial.available() > 2){
+        processedMSG = procRecMsg();  
+        clrXBEErecBuff();
+        LTR_delay = processedMSG;
+      }
+      else{
+        Serial2.println("Error - LTR delay was not received");
+      }
       break;
     default:
       break; //do nothing   
@@ -599,20 +672,6 @@ void stopMotor(){
   movemotor(DIR,0,MAX_PWM_VALUE);
 }
 
-/*boolean beginXbee() {
-  Serial.print("+++");
-  delay(1000);
-  if (Serial.available() > 0) {
-    //digital/Write(ledPin,HIGH);
-    //String inStr(2);
-    char inStr[2];
-    Serial.readBytes(inStr,2);
-    if(inStr == "OK"){
-      //digitalWrite(ledPin,HIGH);
-    }
-  }
-}*/
-
 boolean initSD(){ //initialize SD card
     if (!SD.begin(4)) {
         Serial2.println("ERROR - SD card initialization failed!");
@@ -621,17 +680,17 @@ boolean initSD(){ //initialize SD card
     Serial2.println("SUCCESS - SD card initialized.");
     // check for index.htm file
     if (!SD.exists(WEBSITE_FILENAME)) {
-        Serial2.println("ERROR - Can't find index.htm file!");
+        Serial2.println("ERROR - Can't find targuino.htm file!");
         return 1;  // can't find index file
     }
     Serial2.println("SUCCESS - Found htm file");
     return 0;
 }
 
-boolean openWebPage(char *Tfilename, EthernetClient cl){
+boolean sendFile(char *Tfilename, EthernetClient cl){
   TServerFile = SD.open(Tfilename);        // open web page file
   if(TServerFile) {
-    while(TServerFile.available()) {
+    while(TServerFile.available()){
        cl.write(TServerFile.read()); // send web page to client
       }
     TServerFile.close();
@@ -639,7 +698,7 @@ boolean openWebPage(char *Tfilename, EthernetClient cl){
 
     }
   else{
-    Serial2.println("ERROR - Can't openwebpage");
+    Serial2.print("ERROR - Can't open "); Serial2.println(Tfilename);
     return 1;
   }
   }
@@ -649,7 +708,7 @@ void StrClear(char *str, char str_length){ // sets every element of str to 0 (cl
 }
 
 
-unsigned int StrContains(char *str, char *sfind){ // searches for the string sfind in the string str. returns the index of the last letter if string found, returns 0 if string not found
+unsigned int StrContains(char *str, char sfind[]){ // searches for the string sfind in the string str. returns the index of the last letter if string found, returns 0 if string not found
   char found = 0;
   char index = 0;
   char len;
@@ -677,44 +736,57 @@ boolean sendHTTPResponse(char type, EthernetClient cl){
   if(type == 'x'){//"x" for xml response
     cl.println("HTTP/1.1 200 OK");
     cl.println("Content-Type: text/xml");
+    cl.println("Connection: keep-alive");
   }
   else if(type == 'h'){ //"h" for html response 
     cl.println("HTTP/1.1 200 OK");
     cl.println("Content-Type: text/html");
+    cl.println("Connection: keep-alive");
+  }
+  else if(type == 'f'){ //"f" for file request
+    cl.println("HTTP/1.1 200 OK");
   }
   else{
     return 1;
   }
-  cl.println("Connection: keep-alive");
   cl.println();
   return 0;
 }
 
-boolean respondXML(EthernetClient cl){
-  cl.print("<?xml version = \"1.0\" ?>");
-  cl.print("<Targuino>");
-  cl.print("<Scenario>");
-  switch(currentScenario){
-    case KEEP_RUNNING: 
-      cl.print("KR");
-      break;
-    case RIGHT_TO_LEFT:
-      cl.print("RTL");
-      break;
-    case LEFT_TO_RIGHT:
-      cl.print("LTR");
-      break;
+boolean updateXML(){
+  xmlFile = SD.open(XML_FILENAME,FILE_WRITE);
+  if(xmlFile) {
+    Serial2.println("XML file opened successfully");
+    int fileSize = xmlFile.size();
+    xmlFile.seek(0); //go to the beginning of the file
+    //while(xmlFile.available()){
+       //cl.write(TServerFile.read()); // send web page to client
+      //}
+    TServerFile.close();
+    return 0;
+
     }
-  cl.print("</Scenario>");
-  cl.print("<Velocity>");
-  cl.print(reqVel);
-  cl.print("</Velocity>");
+  else{
+    Serial2.print("ERROR - Can't open ");
+    return 1;
+  }
+}
+
+
+  /*cl.print("<?xml version = \"1.0\" ?>");
+  cl.print("<Targuino>");
+  cl.print("<RTL_Velocity>");
+  cl.print(velRTL);
+  cl.print("</RTL_Velocity>");
+  cl.print("<LTR_Velocity>");
+  cl.print(velLTR);
+  cl.print("</LTR_Velocity>");
   cl.print("<Calibration>");
-  if(calReq){ cl.print("ON");}
+  if(sysMode == MS_CALIBRATION){ cl.print("ON");}
   else{       cl.print("OFF");}
   cl.print("</Calibration>");
   cl.print("<Run>");
-  if(RunReq){ cl.print("ON");}
+  if(sysMode == MS_RUNNING){ cl.print("ON");}
   else{       cl.print("OFF");}
   cl.print("</Run>");
   cl.print("<Status>");
@@ -724,9 +796,7 @@ boolean respondXML(EthernetClient cl){
   //if there is keep_alive
   cl.print("</XBEE_STATUS>");
   cl.print("</Targuino>");
-  TarStatus = ""; //clears TarStatus after every time it is sent to the webserver
-  return 0;
-}
+  TarStatus = ""; //clears TarStatus after every time it is sent to the webserver*/
 
 void coastMotor(){
   digitalWrite(pwmLPin,0);
@@ -734,15 +804,21 @@ void coastMotor(){
 }
 
 void clrXBEEsendBuff(){
-  msgToSend = {0, 0, 0};
+  msgToSend[0] = 0;
+  msgToSend[1] = 0;
+  msgToSend[2] = 0;
 }
 
 void clrXBEErecBuff(){
-  receivedMsg = {0, 0, 0};
+  receivedMsg[0] = 0;
+  receivedMsg[1] = 0;
+  receivedMsg[2] = 0;
 }
 
 void sendXBEEmsg(byte buff){
-  msgToSend = {buff, buff, buff};
+  msgToSend[0] = buff;
+  msgToSend[1] = buff;
+  msgToSend[2] = buff;
   Serial.write(msgToSend, 3);
 }
 
@@ -779,7 +855,82 @@ float convertVelToInput(float vel){
   return ( vel / ropeRadius ) * 255 / maximumMotorVelocity;
 }
 
-byte parseHTTPmsg(char msg[]){
+struct parsedResult parseHTTPmsg(char *msg){
+  parsedResult output;
+  char temp[3] = "";
+  //look for RTL velocity
+  unsigned int ind = StrContains(msg, MSG_RTL_VEL);
+  if(ind){
+    output.msgType = UPDATE_VELOCITY_RTL;
+    memcpy( temp, &msg[ind], 3 );
+    output.velocity = atof(temp);
+    return output;
+  }
+  //look for LTR velocity
+  ind = StrContains(msg, MSG_LTR_VEL);
+  if(ind){
+    output.msgType = UPDATE_VELOCITY_LTR;
+    memcpy( temp, &msg[ind+1], 3 );
+    Serial2.print("memcpy is:"); Serial2.print(temp); Serial2.print(" length is: "); Serial2.println(strlen(temp));
+    output.velocity = atof(temp);
+    return output;
+  }
+
+  //look for BeginCalibration
+  ind = StrContains(msg, MSG_CAL);
+  if(ind){
+    output.msgType = UPDATE_BEGIN_CALIBRATION;
+    output.velocity = 99.99;
+    return output;
+  }
+
+  //look for BeginRun
+  ind = StrContains(msg, MSG_RUN);
+  if(ind){
+    output.msgType = UPDATE_BEGIN_RUNNING;
+    output.velocity = 99.99;
+    return output;
+  }
+
+  //look for StopSignal
+  ind = StrContains(msg, MSG_STOP);
+  if(ind){
+    output.msgType = UPDATE_STOP;
+    output.velocity = 99.99;
+    return output;
+  }
+
+ //look for status
+  ind = StrContains(msg, MSG_STATUS);
+  if(ind){
+    output.msgType = UPDATE_STATUS;
+    output.velocity = 99.99;
+    return output;
+  }
+
+   //look for CSS file
+  ind = StrContains(msg, MSG_CSS);
+  if(ind){
+    output.msgType = UPDATE_CSS;
+    output.velocity = 99.99;
+    return output;
+  }
+
+  //look for js file‎
+  ind = StrContains(msg, MSG_JS);
+  if(ind){
+    output.msgType = UPDATE_JS;
+    output.velocity = 99.99;
+    return output;
+  }
+  
+  //loog for jpg file
+  ind = StrContains(msg, MSG_JPG);
+  if(ind){
+    output.msgType = UPDATE_JPG;
+    output.velocity = 99.99;
+    return output;
+  }
 
 }
 

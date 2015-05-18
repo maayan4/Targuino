@@ -55,21 +55,21 @@ void setup()
     pinMode(10, OUTPUT);
     digitalWrite(10, HIGH);
     
-    Serial.begin(57600);       // for debugging
+    Serial2.begin(57600);       // for debugging
     
     // initialize SD card
-    Serial.println("Initializing SD card...");
+    Serial2.println("Initializing SD card...");
     if (!SD.begin(4)) {
-        Serial.println("ERROR - SD card initialization failed!");
+        Serial2.println("ERROR - SD card initialization failed!");
         return;    // init failed
     }
-    Serial.println("SUCCESS - SD card initialized.");
+    Serial2.println("SUCCESS - SD card initialized.");
     // check for index.htm file
     if (!SD.exists("index.htm")) {
-        Serial.println("ERROR - Can't find index.htm file!");
+        Serial2.println("ERROR - Can't find index.htm file!");
         return;  // can't find index file
     }
-    Serial.println("SUCCESS - Found index.htm file.");
+    Serial2.println("SUCCESS - Found index.htm file.");
     // switches on pins 2, 3 and 5
     pinMode(2, INPUT);
     pinMode(3, INPUT);
@@ -131,8 +131,8 @@ void loop()
                             webFile.close();
                         }
                     }
-                    // display received HTTP request on serial port
-                    Serial.print(HTTP_req);
+                    // display received HTTP request on Serial2 port
+                    Serial2.print(HTTP_req);
                     // reset buffer index and all buffer elements to 0
                     req_index = 0;
                     StrClear(HTTP_req, REQ_BUF_SZ);

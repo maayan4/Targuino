@@ -1,0 +1,11 @@
+<?xml version = \"1.0\" ?>
+<Targuino>
+<RTL_Velocity>0</RTL_Velocity>
+<RTL_Delay>0</RTL_Delay>
+<LTR_Velocity>0</LTR_Velocity>
+<LTR_Delay>0</LTR_Delay>
+<Calibration>OFF</Calibration>
+<Run>OFF</Run>
+<Status>System is ON!</Status>
+<XBEE_STATUS>NOT_RESPONDING</XBEE_STATUS>
+</Targuino>

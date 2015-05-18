@@ -1,12 +1,12 @@
 var nocache = "";
 
-setInterval("UpdateStatus()",1000); //calls UpdateStatus again after 1000 [ms]. This actually makes the function repeats periodically.
+setInterval("UpdateStatus()",2000); //calls UpdateStatus again after 1000 [ms]. This actually makes the function repeats periodically.
 function UpdateStatus(){
-    nocache = "&nocache=" + Math.random();
+    nocache = "&nocache=" + Math.floor(Math.random()*10000);
     var USreq = new XMLHttpRequest();
     USreq.onreadystatechange = function(){
         if (this.readyState == 4 && this.status == 200){
-            if(this.responseText != null){
+            if(this.responseText !== null){
                 ChangeStatus(this.responseText);
             }  
         }
@@ -16,20 +16,20 @@ function UpdateStatus(){
 }
 
 function StartCal(){
-    nocache = "&nocache=" + Math.random();
+    nocache = "&nocache=" + Math.floor(Math.random()*10000);
     var request = new XMLHttpRequest();
     request.open("GET", "BeginCalibration" + nocache,       true);
     request.send(null);
 }
 function StartRun(){
-    nocache = "&nocache=" + Math.random();
+    nocache = "&nocache=" + Math.floor(Math.random()*10000);
     var request = new XMLHttpRequest();
     request.open("GET", "BeginRunning" + nocache,       true);
     request.send(null);
 }
 
 function Stop(){
-    nocache = "&nocache=" + Math.random();
+    nocache = "&nocache=" + Math.floor(Math.random()*10000);
     var request = new XMLHttpRequest();
     request.open("GET", "Stop" + nocache,       true);
     request.send(null);
@@ -37,18 +37,34 @@ function Stop(){
 
 function SaveRTLVel(){
     document.getElementsByName("velocity").value = document.getElementById("RTL_vel_range").nodeValue;
-    nocache = "&nocache=" + Math.random();
+    nocache = "&nocache=" + Math.floor(Math.random()*10000);
     var velocity = document.getElementById("RTL_vel_range").value;
     var request = new XMLHttpRequest();
-    request.open("GET", "RTL_vel=" + velocity + " " + nocache,       true);
+    request.open("GET", "RTL_vel=" + 100*velocity + nocache,       true);
     request.send(null);
 }
 
 function SaveLTRVel(){
-    nocache = "&nocache=" + Math.random();
+    nocache = "&nocache=" + Math.floor(Math.random()*10000);
     var velocity = document.getElementById("LTR_vel_range").value;
     var request = new XMLHttpRequest();
-    request.open("GET", "LTR_vel=" + velocity + " " + nocache,       true);
+    request.open("GET", "LTR_vel=" + 100*velocity + nocache,       true);
+    request.send(null);
+}
+
+function SaveRTLDelay(){
+    nocache = "&nocache=" + Math.floor(Math.random()*10000);
+    var delay = document.getElementById("RTL_delay").value;
+    var request = new XMLHttpRequest();
+    request.open("GET", "RTL_delay=" + 1000*delay + nocache,       true);
+    request.send(null);
+}
+
+function SaveLTRDelay(){
+    nocache = "&nocache=" + Math.floor(Math.random()*10000);
+    var delay = document.getElementById("LTR_delay").value;
+    var request = new XMLHttpRequest();
+    request.open("GET", "LTR_delay=" + 1000*delay + nocache,       true);
     request.send(null);
 }
 
@@ -57,6 +73,6 @@ function ClearStatus(){
 }
 
 function ChangeStatus(newStatus){
-    document.getElementById("StatTextArea").innerHTML = document.getElementById("StatTextArea").innerHTML + "&#13;&#10;" + newStatus;
+    document.getElementById("StatTextArea").innerHTML =            document.getElementById("StatTextArea").innerHTML + "&#13;&#10;" + newStatus;
 }
     
