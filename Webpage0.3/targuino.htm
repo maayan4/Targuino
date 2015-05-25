@@ -14,20 +14,20 @@
             <tr> <td>Velocity:</td>
                 <td>
                     <form id="velocity_form" oninput ="velocity1.value = RTL.valueAsNumber">
-                        <input type="range" name="RTL" id="RTL_vel_range" min="0" max="3.5" step="0.1" value="1" oninput="SaveRTLVel()">
-                         <output form="velocity_form" for="RTL_vel_range" name="velocity1">1</output>/3.5 [m/s]
+                        <input type="range" name="RTL" id="RTL_vel_range" min="0" max="3.5" step="0.1" value="0" oninput="SaveRTLVel()">
+                         <output form="velocity_form" for="RTL_vel_range" name="velocity1">0</output>/3.5 [m/s]
                     </form>
                 </td>      
                 <td>
                     <form id="velocity_form2" oninput="velocity2.value = LTR.valueAsNumber">
-                        <input type="range" name="LTR" id="LTR_vel_range" min="0" max="3.5" step="0.1" value="1" oninput="SaveLTRVel()">
-                        <output form="velocity_form2" for="LTR_vel_range" name="velocity2">1</output>/3.5 [m/s]
+                        <input type="range" name="LTR" id="LTR_vel_range" min="0" max="3.5" step="0.1" value="0" oninput="SaveLTRVel()">
+                        <output form="velocity_form2" for="LTR_vel_range" name="velocity2">0</output>/3.5 [m/s]
                     </form>
                 </td> 
             </tr>
             <tr><td>Delay:</td> 
-                <td><input type="number" min="0" max="30" step="1" value="2" id="RTL_delay" oninput="SaveRTLDelay()">[seconds]</td>     
-                <td><input type="number" min="0" max="30" step="1" value="2" id="LTR_delay" oninput="SaveLTRDelay()">[seconds]</td> 
+                <td><input type="number" min="0" max="30" step="1" value="0" id="RTL_delay" oninput="SaveRTLDelay()">[seconds]</td>     
+                <td><input type="number" min="0" max="30" step="1" value="0" id="LTR_delay" oninput="SaveLTRDelay()">[seconds]</td> 
             </tr>
         </table>
     </div>

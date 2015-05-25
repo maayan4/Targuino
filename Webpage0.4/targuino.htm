@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="targuino.css" media="all" />
+    <script type="text/JavaScript" src="targuino.js"></script> 
+    <title>Targuino</title>
+</head>
+<body onload="UpdateStatus()">
+    <div id="tarTitle">
+    <h1>Targuino <br /> Dynamic target control</h1></div>
+    <div id="logo"><img src="targuino.jpg"></div>
+    <div id="velocity_div">
+        <table border="2">
+            <tr><td></td><td>Right to left</td> <td>Left to right</td></tr>
+            <tr> <td>Velocity:</td>
+                <td>
+                    <form id="velocity_form" oninput ="velocity1.value = RTL.valueAsNumber">
+                        <input type="range" name="RTL" id="RTL_vel_range" min=0.1 max="3.5" step="0.1" value="0" oninput="SaveRTLVel()">
+                         <output form="velocity_form" id="RTL_vel_output" for="RTL_vel_range" name="velocity1">0</output>/3.5 [m/s]
+                    </form>
+                </td>      
+                <td>
+                    <form id="velocity_form2" oninput="velocity2.value = LTR.valueAsNumber">
+                        <input type="range" name="LTR" id="LTR_vel_range" min="0.1" max="3.5" step="0.1" value="0" oninput="SaveLTRVel()">
+                        <output form="velocity_form2" id="LTR_vel_output" for="LTR_vel_range" name="velocity2">0</output>/3.5 [m/s]
+                    </form>
+                </td> 
+            </tr>
+            <tr><td>Delay:</td> 
+                <td><input type="number" min="1" max="30" step="1" value="1" id="RTL_delay" oninput="SaveRTLDelay()">[seconds]</td>     
+                <td><input type="number" min="1" max="30" step="1" value="1" id="LTR_delay" oninput="SaveLTRDelay()">[seconds]</td> 
+            </tr>
+        </table>
+    </div>
+    <div class="control_buttons">
+        <button type="button" id="start_cal" onclick="StartCal()">Begin Calibration sequence</button>
+            <button type="button" id="Start_running" onclick="StartRun()">Begin running sequence</button>
+            <button type="button" id="stop_button" onclick="Stop()">STOP</button>
+    </div>
+    <div>
+    <p class="small_text">System status:</p>
+        <table border="0.5">
+            <tr>
+                <td>Xbee link:</td> <td id="disp_xbee_status">Checking...</td> <td width="100"></td> <td>RTL velocity:</td><td id="disp_RTL_vel" width="30"> </td> <td>[m/s]</td>
+            </tr>
+            <tr>
+                <td>System mode:</td><td id="disp_sysmode"></td><td width="100"></td><td>RTL delay:</td><td id="disp_RTL_delay" width="30"> </td><td>[sec]</td>
+            </tr>
+            <tr><td>Track length:</td><td></td><td width="100">[m]</td><td>LTR velocity:</td><td id="disp_LTR_vel" width="30"></td><td>[m/s]</td></tr>
+            <tr><td></td><td></td><td width="100"></td><td>LTR delay:</td><td id="disp_LTR_delay" width="30"></td><td>[sec]</td></tr>
+        </table>
+    </div>
+
+    <div>
+    <p class="small_text">Messages:</p>
+    <textarea readonly id="StatTextArea"></textarea>
+    <button type="button" id="clear_status" onclick="ClearStatus()">Clear messages box</button>
+    </div>
+</body>
+</html>

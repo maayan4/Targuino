@@ -40,7 +40,7 @@ function SaveRTLVel(){
     nocache = "&nocache=" + Math.floor(Math.random()*10000);
     var velocity = document.getElementById("RTL_vel_range").value;
     var request = new XMLHttpRequest();
-    request.open("GET", "RTL_vel=" + 100*velocity + nocache,       true);
+    request.open("GET", "RTL_vel=" + 100*velocity + nocache,       true); //multiply by 100 to avoid memcpy issues on arduino
     request.send(null);
 }
 
@@ -56,7 +56,7 @@ function SaveRTLDelay(){
     nocache = "&nocache=" + Math.floor(Math.random()*10000);
     var delay = document.getElementById("RTL_delay").value;
     var request = new XMLHttpRequest();
-    request.open("GET", "RTL_delay=" + 1000*delay + nocache,       true);
+    request.open("GET", "RTL_delay=" + 1000*delay + nocache,       true); //multiply by 1000 for [ms]
     request.send(null);
 }
 

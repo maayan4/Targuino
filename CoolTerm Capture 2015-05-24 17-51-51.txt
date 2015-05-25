@@ -1,0 +1,207 @@
+20.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+22.00 received message: 18 18 18
+24.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+27.00 received message: CB CB CB
+28.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+32.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+32.00 received message: 8 8 8
+36.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+37.00 received message: DB DB DB
+40.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+42.00 received message: 8 8 8
+44.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+47.00 received message: 38 38 38
+48.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+52.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+52.00 received message: D D D
+56.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+57.00 received message: 20 20 20
+60.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+62.00 received message: FC FC FC
+64.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+67.00 received message: 18 18 18
+68.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+72.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+72.00 received message: 8 8 8
+76.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+77.00 received message: 30 30 30
+80.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+82.00 received message: B B B
+84.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+87.00 received message: 8 8 8
+88.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+92.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+92.00 received message: 38 38 38
+96.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+97.00 received message: D D D
+100.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+102.00 received message: 28 28 28
+104.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+107.00 received message: 28 28 28
+108.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+112.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+112.00 received message: 29 29 29
+116.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+117.00 received message: FA FA FA
+120.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+122.00 received message: 63 63 63
+124.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+127.00 received message: 2A 2A 2A
+128.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+132.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+132.00 received message: 8 8 8
+136.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+137.00 received message: 3B 3B 3B
+140.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+142.00 received message: 8 8 8
+144.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+147.00 received message: 38 38 38
+148.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+152.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+152.00 received message: A A A
+156.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+157.00 received message: 28 28 28
+160.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+162.00 received message: B B B
+164.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+167.00 received message: 8 8 8
+168.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+172.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+172.00 received message: 28 28 28
+176.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+177.00 received message: F8 F8 F8
+180.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+182.00 received message: 2B 2B 2B
+184.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+187.00 received message: FD FD FD
+188.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+192.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+192.00 received message: 6B 6B 6B
+196.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+197.00 received message: 30 30 30
+200.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+202.00 received message: 3 3 3
+204.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+207.00 received message: 28 28 28
+208.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+212.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+212.00 received message: 98 98 98
+216.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+217.00 received message: 29 29 29
+220.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+222.00 received message: FF FF FF
+224.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+227.00 received message: 69 69 69
+228.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+232.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+232.00 received message: 4B 4B 4B
+236.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+237.00 received message: 8 8 8
+237.00 Unknown character received: 8
+240.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+242.00 received message: 5B 5B 5B
+244.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+247.00 received message: F9 F9 F9
+248.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+252.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+252.00 received message: 29 29 29
+256.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+257.00 received message: 1A 1A 1A
+260.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+262.00 received message: 28 28 28
+264.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+267.00 received message: 58 58 58
+268.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+272.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+272.00 received message: 63 63 63
+276.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+277.00 received message: 28 28 28
+280.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+282.00 received message: D8 D8 D8
+284.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+287.00 received message: 69 69 69
+288.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+292.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+292.00 received message: 4B 4B 4B
+296.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+297.00 received message: 8 8 8
+300.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+302.00 received message: 28 28 28
+304.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+307.00 received message: 78 78 78
+308.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+312.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+312.00 received message: 19 19 19
+316.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+317.00 received message: 64 64 64
+message sent: 75 
+317.00 keep alive request received from master
+320.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+322.00 received message: 64 64 64
+message sent: 75 
+322.00 keep alive request received from master
+324.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+327.00 received message: 64 64 64
+message sent: 75 
+327.00 keep alive request received from master
+328.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+332.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+332.00 received message: 64 64 64
+message sent: 75 
+332.00 keep alive request received from master
+336.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+337.00 received message: 64 64 64
+message sent: 75 
+337.00 keep alive request received from master
+340.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+342.00 received message: 64 64 64
+message sent: 75 
+342.00 keep alive request received from master
+344.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+347.00 received message: 64 64 64
+message sent: 75 
+347.00 keep alive request received from master
+348.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+352.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+352.00 received message: 64 64 64
+message sent: 75 
+352.00 keep alive request received from master
+356.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+357.00 received message: 64 64 64
+message sent: 75 
+357.00 keep alive request received from master
+360.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+362.00 received message: 64 64 64
+message sent: 75 
+362.00 keep alive request received from master
+364.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+367.00 received message: 64 64 64
+message sent: 75 
+367.00 keep alive request received from master
+368.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+372.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+372.00 received message: 64 64 64
+message sent: 75 
+372.00 keep alive request received from master
+376.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+380.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+384.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+388.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+392.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+Targuino version 0.8 build 106
+Pins initialized
+This is the slave motor
+Maximum runtime is [ms]: 65535
+i'm in state: zero! waiting for instructions
+4.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+8.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+12.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+Targuino version 0.8 build 106
+Pins initialized
+This is the slave motor
+Maximum runtime is [ms]: 65535
+i'm in state: zero! waiting for instructions
+4.00 FSM_State: 1 sysMode: BA LTR_delay: 0 LTR_Velocity: 0.00 RTL_delay: 0 RTL_Velocity: 0.00 numOfKAmsgs: 0
+4.00 Unknown character received: 0
+4.00 received message: 29 29 29
+4.00 Unknown character received: 0
