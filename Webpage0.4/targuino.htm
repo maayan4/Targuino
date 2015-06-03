@@ -1,27 +1,35 @@
 <!doctype html>
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="targuino.css" media="all" />
-    <script type="text/JavaScript" src="targuino.js"></script> 
+     <script type="text/javascript" src="jquery-1.11.3.min.js"></script>
+    <script type="text/javascript" src="jquery.nouislider.all.min.js"></script>
+    <script type="text/javascript" src="targuino.js"></script>
+    <link rel="stylesheet" type="text/css" href="targuino.css" media="all">
+    <link href="jquery.nouislider.min.css" rel="stylesheet">
+    <link rel="apple-touch-icon" href="favicon.png"/>
+    <link rel="shortcut icon" href="favicon.png">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="HandheldFriendly" content="true"> 
     <title>Targuino</title>
 </head>
+    
 <body onload="UpdateStatus()">
-    <div id="tarTitle">
-    <h1>Targuino <br /> Dynamic target control</h1></div>
-    <div id="logo"><img src="targuino.jpg"></div>
+    <div id="tarTitle"> Targuino <br /> Dynamic target control </div>
+    
     <div id="velocity_div">
         <table border="2">
             <tr><td></td><td>Right to left</td> <td>Left to right</td></tr>
-            <tr> <td>Velocity:</td>
+            <tr > <td>Velocity:</td>
                 <td>
                     <form id="velocity_form" oninput ="velocity1.value = RTL.valueAsNumber">
-                        <input type="range" name="RTL" id="RTL_vel_range" min=0.1 max="3.5" step="0.1" value="0" oninput="SaveRTLVel()">
+                        <input class="noUiSlider" type="range" name="RTL" id="RTL_vel_range" min="0.1" max="3.5" step="0.1" value="0" oninput="SaveRTLVel()">
                          <output form="velocity_form" id="RTL_vel_output" for="RTL_vel_range" name="velocity1">0</output>/3.5 [m/s]
                     </form>
                 </td>      
                 <td>
                     <form id="velocity_form2" oninput="velocity2.value = LTR.valueAsNumber">
-                        <input type="range" name="LTR" id="LTR_vel_range" min="0.1" max="3.5" step="0.1" value="0" oninput="SaveLTRVel()">
+                        <input class="noUiSlider" type="range" name="LTR" id="LTR_vel_range" min="0.1" max="3.5" step="0.1" value="0" oninput="SaveLTRVel()">
                         <output form="velocity_form2" id="LTR_vel_output" for="LTR_vel_range" name="velocity2">0</output>/3.5 [m/s]
                     </form>
                 </td> 
@@ -46,7 +54,7 @@
             <tr>
                 <td>System mode:</td><td id="disp_sysmode"></td><td width="100"></td><td>RTL delay:</td><td id="disp_RTL_delay" width="30"> </td><td>[sec]</td>
             </tr>
-            <tr><td>Track length:</td><td></td><td width="100">[m]</td><td>LTR velocity:</td><td id="disp_LTR_vel" width="30"></td><td>[m/s]</td></tr>
+            <tr><td>Track length:</td><td id="disp_track_length"></td><td width="100">[m]</td><td>LTR velocity:</td><td id="disp_LTR_vel" width="30"></td><td>[m/s]</td></tr>
             <tr><td></td><td></td><td width="100"></td><td>LTR delay:</td><td id="disp_LTR_delay" width="30"></td><td>[sec]</td></tr>
         </table>
     </div>
@@ -55,6 +63,8 @@
     <p class="small_text">Messages:</p>
     <textarea readonly id="StatTextArea"></textarea>
     <button type="button" id="clear_status" onclick="ClearStatus()">Clear messages box</button>
-    </div>
+    </div> 
+    
+    <div id="credit">Created by Raziel Einhorn. Images courtesy of freePik</div>
 </body>
 </html>

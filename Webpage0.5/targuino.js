@@ -1,3 +1,39 @@
+$(document).ready(function () {
+    
+    $('#RTL_vel_range').noUiSlider({
+        start: 0.5,
+        step: 0.1,
+        range: {
+            'min': 0,
+            'max': 3.5
+        },   
+        connect: 'lower',
+    });
+    
+    $('#LTR_vel_range').noUiSlider({
+    start: 0.5,
+    step: 0.1,
+    range: {
+        'min': 0,
+        'max': 3.5
+    },   
+    connect: 'lower',
+    });
+            
+  $('#RTL_vel_range').Link('lower').to('-inline-<div class="tooltip"></div>', function ( value ) { 
+      $(this).html('<strong>Value: </strong>' + '<span>' + value + '</span>');  
+  });
+    
+  $('#LTR_vel_range').Link('lower').to('-inline-<div class="tooltip"></div>', function ( value ) { 
+    $(this).html('<strong>Value: </strong>' + '<span>' + value + '</span>');  
+  });
+
+  $('#RTL_vel_range').on('set',SaveRTLVel);
+  $('#LTR_vel_range').on('set',SaveLTRVel);
+
+
+});
+
 var nocache = "";
 
 setInterval(UpdateStatus,2000); //calls UpdateStatus again after 1000 [ms]. This actually makes the function repeats periodically.
@@ -45,7 +81,7 @@ request.send(null);
 
 function SaveRTLVel(){
 nocache = "&nocache=" + Math.floor(Math.random()*10000);
-var velocity = 10000 * document.getElementById("RTL_vel_range").value;
+var velocity = 10000 * $('#RTL_vel_range').val();
 var request = new XMLHttpRequest();
 request.open("GET", "RTL_vel=" + velocity + nocache,       true); //multiply by 100 to avoid memcpy issues on arduino
 request.send(null);
@@ -53,7 +89,7 @@ request.send(null);
 
 function SaveLTRVel(){
 nocache = "&nocache=" + Math.floor(Math.random()*10000);
-var velocity = 10000 * document.getElementById("LTR_vel_range").value;
+var velocity = 10000 * $('#LTR_vel_range').val();
 var request = new XMLHttpRequest();
 request.open("GET", "LTR_vel=" + velocity + nocache,       true);
 request.send(null);
