@@ -1,20 +1,35 @@
+html {
+    width: 640px;
+    min-width: 640px;
+    max-width: 640px;
+    min-height: 1350px;
+    max-height: 1350px;
+    font-size: 16px;
+    font-family: Times, serif;
+}
+
 .UpperPart {
-    float:left;
-    background-color: #323b43;
+    float: none;
+    background-color: #313131;
     background-image: url(targuino.jpg);
     background-repeat: no-repeat;
     background-position: left;
     background-size: contain;
     font-size: 200%;
+    font-family: Andale Mono, monospace;
     position: relative;
-    text-align: left;
     color: white;
     height: 100px;
     width: inherit;
-    margin-top: -40px;
+    margin-top: -9px;
     margin-left: -10px;
-    padding-left: 12%;
-    display: block;
+    padding-left: 20%;
+    display: table;
+}
+
+span{
+    display: table-cell;
+    vertical-align: middle;
 }
 
 .LowerPart{
@@ -28,37 +43,16 @@
     color: white;
 }
 
-html {
-    width: 750px;
-    min-width: 750px;
-    max-width: 750px;
-    min-height: 1350px;
-    max-height: 1350px;
-    font-size: 16px;
-    font-family: Arial;
-}
+
 
 body { 
-   
+  width:inherit; 
 }
 
 p { 
     color: white;
 }
 
-#velocity_div{
-    display: block;
-    border-radius: 5px;
-	border: 2px;
-	height: auto;
-	width: 100%;
-	margin-right: auto;
-    margin-left: auto;
-    margin-top: 5%;
-    margin-bottom: 5%;
-	text-align: center;
-    vertical-align: middle;
-}
 #stop_button{
      width: 150px;
 }
@@ -82,6 +76,7 @@ textarea {
 	left: -9px;
 	text-align: center;
 	width: 50px;
+    color: black;
 }
 .tooltip strong {
 	display: block;
@@ -91,5 +86,46 @@ textarea {
 table {
     font-size: 100%;
     border-spacing: 1em; 
+}
+
+.spinner {
+    display:inline-block; 
+    position:relative; 
+    border:1px solid #dcdcdc; 
+    border-radius:4px; 
+    overflow:hidden;
+}
+.spinner-input {
+    width:50px; 
+    margin-right:17px; 
+    border: none; 
+    padding:0 3px; 
+    height:30px; 
+    line-height:30px; 
+    border-right:1px solid #dcdcdc;
+    font-size: 19px;
+     
+}
+.spinner-button {
+    text-decoration:none; 
+    position:absolute; 
+    right:0; 
+    background: #efefef; 
+    height:15px; 
+    line-height:px; 
+    width:17px;
+}
+.spinner-up {
+    top:0;
+    line-height: 14px;
+}
+.spinner-down {
+    bottom:0; 
+    border-top:1px solid #dcdcdc;
+    line-height: 19px
+}
+
+#statusTable {
+    float: left;
     
 }

@@ -27,3 +27,42 @@ p {
 	display: block;
 	padding: 2px;
 }
+
+input:invalid {
+  outline: 2px solid red;
+}
+
+.spinner {
+    display:inline-block; 
+    position:relative; 
+    border:1px solid #dcdcdc; 
+    border-radius:4px; 
+    overflow:hidden;}
+.spinner-input {
+    width:50px; 
+    margin-right:17px; 
+    border: none; 
+    padding:0 3px; 
+    height:30px; 
+    line-height:30px; 
+    border-right:1px solid #dcdcdc;
+    font-size: 19px;
+}
+.spinner-button {
+    text-decoration:none; 
+    position:absolute; 
+    right:0; 
+    background: #efefef; 
+    height:15px; 
+    line-height:px; 
+    width:17px;
+}
+.spinner-up {
+    top:0;
+    line-height: 14px;
+}
+.spinner-down {
+    bottom:0; 
+    border-top:1px solid #dcdcdc;
+    line-height: 19px
+}

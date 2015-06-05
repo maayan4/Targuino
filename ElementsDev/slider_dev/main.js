@@ -16,7 +16,30 @@ $(document).ready(function () {
   });
 
   $('#rrr').on('set',SaveLTRVel);
+		
+$(document).on('click', '.spinner-button', function(){
+  var target = $(this).siblings(':first');
+  if ($(this).hasClass('spinner-up')){
+    $(target).val((parseInt($(target).val()) + 1));
+  }else{
+    $(target).val((parseInt($(target).val()) - 1));
+  }
+  $(':input.spinner-input').trigger('change');
+  return false;
+});
+    
+$('.spinner-input').change(function(){
+    if($(this).val() > 30 || $(this).val() < 0){
+        $('.spinner').css({"border" : "1px solid red"});
+    }
+    else if(Math.floor($(this).val()) != $(this).val() || $(this).val().isNumeric){ 
+        $('.spinner').css({"border" : "1px solid red"});
+    }
+    else{
+        $('.spinner').css({"border" : "1px solid #dcdcdc"});
+    }})
 
+    
 });
 
  
