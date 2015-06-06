@@ -21,36 +21,34 @@ $(document).ready(function () {
     });
             
   $('#RTL_vel_range').Link('lower').to('-inline-<div class="tooltip"></div>', function ( value ) { 
-      $(this).html('<strong>Value: </strong>' + '<span>' + value + '</span>');  
+      $(this).html(value);  
   });
     
   $('#LTR_vel_range').Link('lower').to('-inline-<div class="tooltip"></div>', function ( value ) { 
-    $(this).html('<strong>Value: </strong>' + '<span>' + value + '</span>' );  
+    $(this).html(value);  
   });
 
   $('#RTL_vel_range').on('set',SaveRTLVel);
   $('#LTR_vel_range').on('set',SaveLTRVel);
 
 $('.spinner-button').click(function(){
-  var target = $(this).siblings(':first');
+  var target = $(this).siblings('.spinner-input');
   if ($(this).hasClass('spinner-up')){
     $(target).val((parseInt($(target).val()) + 1));
   }
     else{
     $(target).val((parseInt($(target).val()) - 1));
   }
-  
-    $('.spinner-input').trigger('change');
-  
+   // $('.spinner-input').trigger('change');
     return false;
 });
 
 $('.spinner-input').change(function(){
-    if($(this).val() > 30 || $(this).val() < 0){
-        $('.spinner').css({"border" : "5px solid red"});
+    if($(this).val() > 60 || $(this).val() < 0){
+        $('.spinner').css({"border" : "2px solid red"});
     }
     else if(Math.floor($(this).val()) != $(this).val() || $(this).val().isNumeric){ 
-        $('.spinner').css({"border" : "1px solid red"});
+        $('.spinner').css({"border" : "2px solid red"});
     }
     else{
         $('.spinner').css({"border" : "1px solid #dcdcdc"});
