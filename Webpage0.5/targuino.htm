@@ -22,10 +22,10 @@
         <div class="MyTable">
         
             <table border="0">
-                <tr><td></td><td>Right to left</td> <td>Left to right</td></tr>
+                <tr class="first_row"><td></td><td>Right to left</td> <td>Left to right</td></tr>
                 <tr > <td>Velocity <br />[m/s]:</td>
-                    <td width="200"> <div id="RTL_vel_range"></div></td>      
-                    <td width="200"> <div id="LTR_vel_range"></div></td> 
+                    <td> <div id="RTL_vel_range"></div></td>      
+                    <td> <div id="LTR_vel_range"></div></td> 
                 </tr>
                 <tr><td>Delay <br />[seconds]:</td> 
                     
@@ -34,7 +34,6 @@
                           <input id="RTLD_in" class="spinner-input" type="tel" value="1">
                             <div class="spinner-button spinner-up">+</div> 
                         </div></td> 
-
                     <td><div class="spinner" id="LTRD">
                           <div class="spinner-button spinner-down">-</div>
                           <input id="LTRD_in" class="spinner-input" type="tel" value="1">
@@ -51,17 +50,17 @@
             </div>
         </div>
     
-    <div class="MyTable">
+<div class="MyTable">
     <p class="small_text">System status:</p>
-        <table>
+        <table id="statusTable">
             <tr>
-                <td>Xbee link:</td> <td id="disp_xbee_status"></td> <td width="90"></td> <td>RTL velocity:</td><td id="disp_RTL_vel" width="30"> </td> <td>[m/s]</td>
+                <td width="75">Xbee link:</td> <td id="disp_xbee_status"></td> <td width="40"></td> <td>RTL velocity:</td><td id="disp_RTL_vel" width="30"> </td> <td>[m/s]</td>
             </tr>
             <tr>
-                <td>System mode:</td><td id="disp_sysmode"></td><td width="90"></td><td>RTL delay:</td><td id="disp_RTL_delay" width="30"> </td><td>[sec]</td>
+                <td>System mode:</td><td id="disp_sysmode"></td><td></td><td>RTL delay:</td><td id="disp_RTL_delay" width="30"> </td><td>[sec]</td>
             </tr>
-            <tr><td>Track length:</td><td id="disp_track_length"></td><td width="90">[m]</td><td>LTR velocity:</td><td id="disp_LTR_vel" width="30"></td><td>[m/s]</td></tr>
-            <tr><td></td><td></td><td width="10"></td><td>LTR delay:</td><td id="disp_LTR_delay" width="30"></td><td>[sec]</td></tr>
+            <tr><td>Track length:</td><td id="disp_track_length"></td><td>[m]</td><td width="75">LTR velocity:</td><td id="disp_LTR_vel" width="30"></td><td>[m/s]</td></tr>
+            <tr><td></td><td></td><td width="10"></td><td>LTR delay:</td><td id="disp_LTR_delay" width="30"></td><td width="20">[sec]</td></tr>
         </table>
     </div>
 

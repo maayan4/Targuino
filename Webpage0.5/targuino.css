@@ -2,8 +2,8 @@ html {
     width: 320px;
     min-width: 320px;
     max-width: 320px;
-    min-height: 568px;
-    max-height: 568px;
+    min-height: 600px;
+    max-height: 600px;
     font-size: 16px;
     font-family: Times, serif;
     background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #2B130E), color-stop(1, #3749EF));
@@ -13,7 +13,6 @@ html {
 
 .UpperPart {
     float: none;
-    /*background-color: #313131;*/
     background-image: url(targuino.jpg);
     background-repeat: no-repeat;
     background-position: left;
@@ -37,7 +36,6 @@ span{
 
 .LowerPart{
     float:left;
-    /*background-color: #59626a;*/
     padding-left: 7.5%;
     background-size: contain;
     font-size: 100%;
@@ -81,13 +79,11 @@ textarea {
 table {
     position: relative;
     font-size: 80%;
-    border-spacing: 1em;
-    float: left;
+    border-spacing: 3px;
 }
 
-#statusTable {
-    float: left;
-    height: 180px;
+table tr{
+    line-height: 30px;
 }
 
 .spinner {
@@ -95,13 +91,13 @@ table {
     position:relative; 
     border-radius:2px; 
     overflow:hidden;
-    width: 130px; 
+    width: 120px; 
     height: 30px;
 }
 
 .spinner-input {
     display: inline-block;
-    width: 50px;
+    width: 40px;
     height: 28px; 
     font-size: 130%;
     text-align: center;
@@ -145,10 +141,10 @@ table {
 }
 
 .buttonHolder{
-  margin: 110px auto;
-  width:400px;
+  width: 110%;
+  float: left;
+  margin-left: -28px;
 }
-
 
 .button{
     background-image: -webkit-linear-gradient(top, #f4f1ee, #fff);
@@ -157,7 +153,7 @@ table {
     box-shadow: 0px 8px 10px 0px rgba(0, 0, 0, .3), inset 0px 4px 1px 1px white, inset 0px -3px 1px 1px rgba(204,198,197,.5);
     float:left;
     height: 40px;
-    margin: 0 30px 30px 0;
+    margin: 0 10px 10px 0;
     position: relative;
     width: 100px;			
     -webkit-transition: all .1s linear;
@@ -222,18 +218,18 @@ table {
 
 .messageBox{
     height: 150px;
-    position: absolute;
-    top: 400px;
+    position: relative;
+    margin-top: -45px;
+    margin-left: -20px;
     display: block;
     float: left;
-    left: 10px
 }
 
 .credit{
     position: relative;
     display: block;
     float: left;
-    top: 115px;
+    top: -10px;
     left: -20px;
     width: 300px;
     font-family: monospace;
@@ -242,4 +238,20 @@ table {
 .MyTable{
     float: left;
     margin-left: -23px;
+    width: 110%;
+    display: block;
+}
+
+.first_row{
+    font-size: 130%;
+    text-decoration: underline;
+}
+
+#statusTable{
+    float: left;
+    position: relative;
+    width: 100%;
+    height: 180px;
+    top: -25px;
+    border-spacing: 1px;
 }
