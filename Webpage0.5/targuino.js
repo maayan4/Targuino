@@ -1,3 +1,9 @@
+var nocache = "";
+var previousLTRD = 1;
+var previousRTLD = 1;
+
+setInterval(UpdateStatus,2000); //calls UpdateStatus again after 1000 [ms]. This actually makes the function repeats periodically.
+
 $(document).ready(function () {
     
     $('#RTL_vel_range').noUiSlider({
@@ -44,6 +50,7 @@ $('.spinner-button').click(function(){
 });
 
 $('.spinner-input').change(function(){
+    var source = $(this).attr('id');
     var target = $(this).parent('.spinner');
     if($(this).val() > 60 || $(this).val() < 0){
         $(target).css({"border" : "2px solid red"});
@@ -53,14 +60,18 @@ $('.spinner-input').change(function(){
     }
     else{
         $(target).css({"border" : "none"});
+        if(source == "LTRD_in" && $(this).val() != previousLTRD){ 
+            previousLTRD = $(this).val();
+            SaveLTRDelay();
+        }
+        else if(source == "RTLD_in" && $(this).val() != previousRTLD){  
+            previousRTLD = $(this).val();
+            SaveRTLDelay();
+        }
     }})
 
 
 });
-
-var nocache = "";
-
-setInterval(UpdateStatus,2000); //calls UpdateStatus again after 1000 [ms]. This actually makes the function repeats periodically.
 
 function UpdateStatus(){
 nocache = "&nocache=" + Math.floor(Math.random()*10000);
@@ -121,7 +132,7 @@ request.send(null);
 
 function SaveRTLDelay(){
 nocache = "&nocache=" + Math.floor(Math.random()*10000);
-var delay = 1000 * document.getElementById("RTL_delay").value;
+var delay = 1000 * document.getElementById("RTLD_in").value;
 var request = new XMLHttpRequest();
 request.open("GET", "RTL_delay=" + delay + nocache,       true); //multiply by 1000 for [ms]
 request.send(null);
@@ -129,7 +140,7 @@ request.send(null);
 
 function SaveLTRDelay(){
 nocache = "&nocache=" + Math.floor(Math.random()*10000);
-var delay = 1000 * document.getElementById("LTR_delay").value;
+var delay = 1000 * document.getElementById("LTRD_in").value;
 var request = new XMLHttpRequest();
 request.open("GET", "LTR_delay=" + delay + nocache,       true);
 request.send(null);
