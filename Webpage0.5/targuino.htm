@@ -19,7 +19,7 @@
     <div class="UpperPart"> <span>Targuino <br /> Dynamic target control</span></div>
     
     <div class="LowerPart">
-        <div id="ConfigTable">
+        <div class="MyTable">
         
             <table border="0">
                 <tr><td></td><td>Right to left</td> <td>Left to right</td></tr>
@@ -31,46 +31,47 @@
                     
                     <td><div class="spinner" id="RTLD">
                           <div class="spinner-button spinner-down">-</div>
-                          <input class="spinner-input" type="tel" value="1">
+                          <input id="RTLD_in" class="spinner-input" type="tel" value="1">
                             <div class="spinner-button spinner-up">+</div> 
                         </div></td> 
 
                     <td><div class="spinner" id="LTRD">
                           <div class="spinner-button spinner-down">-</div>
-                          <input class="spinner-input" type="tel" value="1">
+                          <input id="LTRD_in" class="spinner-input" type="tel" value="1">
                             <div class="spinner-button spinner-up">+</div> 
                         </div></td> 
                 </tr>
-            </table>        
+            </table> </div>       
 
-    <div id="control_buttons">
-        <button type="button" id="start_cal" onclick="StartCal()">Begin Calibration</button>
-        <button type="button" id="Start_running" onclick="StartRun()">Begin running</button>
-        <button type="button" id="stop_button" onclick="Stop()">STOP</button>    
+        <div class="control_buttons">
+            <div class="buttonHolder">
+                <a class="button calibrate" onclick="StartCal()"></a>
+                <a class="button run" onclick="StartRun()"></a>
+                <a class="button stop" onclick="Stop()"></a>
+            </div>
         </div>
-    </div>
     
-    <div id="statusTable">
+    <div class="MyTable">
     <p class="small_text">System status:</p>
         <table>
             <tr>
-                <td>Xbee link:</td> <td id="disp_xbee_status"></td> <td width="10"></td> <td>RTL velocity:</td><td id="disp_RTL_vel" width="30"> </td> <td>[m/s]</td>
+                <td>Xbee link:</td> <td id="disp_xbee_status"></td> <td width="90"></td> <td>RTL velocity:</td><td id="disp_RTL_vel" width="30"> </td> <td>[m/s]</td>
             </tr>
             <tr>
-                <td>System mode:</td><td id="disp_sysmode"></td><td width="10"></td><td>RTL delay:</td><td id="disp_RTL_delay" width="30"> </td><td>[sec]</td>
+                <td>System mode:</td><td id="disp_sysmode"></td><td width="90"></td><td>RTL delay:</td><td id="disp_RTL_delay" width="30"> </td><td>[sec]</td>
             </tr>
-            <tr><td>Track length:</td><td id="disp_track_length"></td><td width="20">[m]</td><td>LTR velocity:</td><td id="disp_LTR_vel" width="30"></td><td>[m/s]</td></tr>
+            <tr><td>Track length:</td><td id="disp_track_length"></td><td width="90">[m]</td><td>LTR velocity:</td><td id="disp_LTR_vel" width="30"></td><td>[m/s]</td></tr>
             <tr><td></td><td></td><td width="10"></td><td>LTR delay:</td><td id="disp_LTR_delay" width="30"></td><td>[sec]</td></tr>
         </table>
     </div>
 
-    <div id="messageBox">
+    <div class="messageBox">
     <p class="small_text">Messages:</p>
     <textarea readonly id="StatTextArea"></textarea>
-    <button type="button" id="clear_status" onclick="ClearStatus()">Clear messages box</button>
+    <!--<button type="button" id="clear_status" onclick="ClearStatus()">Clear messages box</button>-->
     </div> 
     
-    <div id="credit">Created by Raziel Einhorn. Images courtesy of freePik</div>
+    <div class="credit">&copy; Created by Raziel Einhorn</div>
     </div>
 
 </body>

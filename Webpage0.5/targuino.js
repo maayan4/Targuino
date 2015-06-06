@@ -39,19 +39,20 @@ $('.spinner-button').click(function(){
     else{
     $(target).val((parseInt($(target).val()) - 1));
   }
-   // $('.spinner-input').trigger('change');
+    $('.spinner-input').trigger('change');
     return false;
 });
 
 $('.spinner-input').change(function(){
+    var target = $(this).parent('.spinner');
     if($(this).val() > 60 || $(this).val() < 0){
-        $('.spinner').css({"border" : "2px solid red"});
+        $(target).css({"border" : "2px solid red"});
     }
     else if(Math.floor($(this).val()) != $(this).val() || $(this).val().isNumeric){ 
-        $('.spinner').css({"border" : "2px solid red"});
+        $(target).css({"border" : "2px solid red"});
     }
     else{
-        $('.spinner').css({"border" : "1px solid #dcdcdc"});
+        $(target).css({"border" : "none"});
     }})
 
 
