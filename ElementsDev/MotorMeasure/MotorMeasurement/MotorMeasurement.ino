@@ -47,7 +47,7 @@ void setup() {
   attachInterrupt(3,IncrRevolution,RISING); //interrupt 3 is for pin number 20
   interrupts();
   PreviousInterruptTime=millis();
-  Serial.begin(115200);
+  Serial2.begin(9600);
   pinMode(ledPin,OUTPUT);
   pinMode(pwmHPin, OUTPUT); 
   pinMode(pwmLPin, OUTPUT);
@@ -72,13 +72,6 @@ void loop() {
   }
   }
   
-  //                                                      _______
-  //------input---(+-)--(input-PID)->|motor |----------->output
-  //                        |                              ---------         |
-  //                        |         ____                                  |
-  //                        -------|PID|---------------------------
-  //                                  -----
-  //first read the feedback (speed measurment) and then decide on the input
   
   //feedback - measure speed
   if(Revolutions>3){

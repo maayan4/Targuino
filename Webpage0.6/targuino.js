@@ -86,7 +86,7 @@ function updateDelay(element){
     nocache = "&nocache=" + Math.floor(Math.random()*10000);
     var delay = 1000 * element.value;
     var request = new XMLHttpRequest();
-    if(element.id == "RTLD_in"){ request.open("POST", "RTL_vel=" + delay + nocache,       true);}
-    else if(element.id == "LTRD_in"){ request.open("POST", "LTR_vel=" + delay + nocache,       true);}
+    if(element.id == "RTLD_in"){ request.open("POST", "RTL_delay=" + delay + nocache,       true);}
+    else if(element.id == "LTRD_in"){ request.open("POST", "LTR_delay=" + delay + nocache,       true);}
     request.send(null);
 }
