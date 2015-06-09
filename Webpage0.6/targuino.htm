@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+<head>
+    <script type="text/javascript" src="targuino.js"></script>
+    <link rel="stylesheet" type="text/css" href="targuino.css" media="all">
+    <link rel="apple-touch-icon" href="favicon.png"/>
+    <link rel="shortcut icon" href="favicon.png">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="HandheldFriendly" content="true"> 
+    <title>Targuino</title>
+</head>
+    
+<body onload="UpdateStatus()">
+    <div class="UpperPart"> <span>Targuino <br /> Dynamic target control</span></div>
+    
+    <div class="LowerPart">
+        <div class="MyTable">
+        
+            <table border="0">
+                <tr class="first_row"><td></td><td>Right to left</td> <td>Left to right</td></tr>
+                <tr > <td>Velocity <br />[m/s]:</td>
+                    <td><div class="slider">
+	                   <input class="bar purple" type="range" id="RTLvelInput" value="1" step="0.1" min="0" max="3.5" oninput="rangevalueRTL.value=value" onchange="updateVelocity(this)"/>
+	                   <span class="highlight"></span>
+	                   <output class="rangeOut" id="rangevalueRTL">0.1</output>
+                    </div></td>      
+                    <td><div class="slider">
+	                   <input class="bar green" type="range" id="LTRvelInput" value="1" step="0.1" min="0" max="3.5" oninput="rangevalueLTR.value=value" onchange="updateVelocity(this)"/>
+	                   <span class="highlight"></span>
+	                   <output class="rangeOut" id="rangevalueLTR">0.1</output>
+                    </div></td>      
+                </tr>
+                <tr><td>Delay <br />[seconds]:</td> 
+                    
+                    <td><div class="spinner" id="RTLD">
+                          <div class="spinner-button spinner-down" onclick="updateSpinnerInput(this)">-</div>
+                          <input id="RTLD_in" class="spinner-input" type="tel" value="1" onchange="checkDelayValue(this)">
+                            <div class="spinner-button spinner-up" onclick="updateSpinnerInput(this)">+</div> 
+                        </div></td> 
+                    <td><div class="spinner" id="LTRD">
+                          <div class="spinner-button spinner-down" onclick="updateSpinnerInput(this)">-</div>
+                          <input id="LTRD_in" class="spinner-input" type="tel" value="1" onchange="checkDelayValue(this)">
+                            <div class="spinner-button spinner-up" onclick="updateSpinnerInput(this)">+</div> 
+                        </div></td> 
+                </tr>
+            </table> </div>       
+
+        <div class="control_buttons">
+            <div class="buttonHolder">
+                <a class="button calibrate" onclick="StartCal()"></a>
+                <a class="button run" onclick="StartRun()"></a>
+                <a class="button stop" onclick="Stop()"></a>
+            </div>
+        </div>
+    
+<div class="MyTable">
+    <p class="small_text">System status:</p>
+        <table id="statusTable">
+            <tr>
+                <td width="75">Xbee link:</td> <td id="disp_xbee_status"></td> <td width="40"></td> <td>RTL velocity:</td><td id="disp_RTL_vel" width="30"> </td> <td>[m/s]</td>
+            </tr>
+            <tr>
+                <td>System mode:</td><td id="disp_sysmode"></td><td></td><td>RTL delay:</td><td id="disp_RTL_delay" width="30"> </td><td>[sec]</td>
+            </tr>
+            <tr><td>Track length:</td><td id="disp_track_length"></td><td>[m]</td><td width="75">LTR velocity:</td><td id="disp_LTR_vel" width="30"></td><td>[m/s]</td></tr>
+            <tr><td></td><td></td><td width="10"></td><td>LTR delay:</td><td id="disp_LTR_delay" width="30"></td><td width="20">[sec]</td></tr>
+        </table>
+    </div>
+
+    <div class="messageBox">
+    <p class="small_text">Messages:</p>
+    <textarea readonly id="StatTextArea"></textarea>
+    <!--<button type="button" id="clear_status" onclick="ClearStatus()">Clear messages box</button>-->
+    </div> 
+    
+    <div class="credit">&copy; Created by Raziel Einhorn</div>
+    </div>
+
+</body>
+</html>

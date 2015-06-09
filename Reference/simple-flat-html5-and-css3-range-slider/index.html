@@ -1,0 +1,137 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Flat Html5 and CSS3 Range Slider Demo</title>
+<style>
+body,
+html {
+  margin: 0px;
+  padding: 0px;
+  background-color: #1abc9c;
+  font-family: Sniglet;
+  text-align: center;
+}
+
+h1 {
+  color: #ecf0f1;
+  text-align: center;
+  font-size: 40px;
+  margin: 0px;
+  height: 70px;
+}
+
+input {
+  -webkit-appearance: none;
+  width: 160px;
+  height: 20px;
+  margin: 10px 50px;
+  background: linear-gradient(to right, #16a085 0%, #16a085 100%);
+  background-size: 150px 10px;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+  outline: none;
+  zoom: 130%;
+  display: block;
+  margin: auto;
+  margin-bottom: 30px;
+}
+ input::-webkit-slider-thumb {
+ -webkit-appearance: none;
+ width: 20px;
+ height: 20px;
+ background: #27ae60;
+ position: relative;
+ z-index: 3;
+}
+ input::-webkit-slider-thumb:after {
+ content: " ";
+ width: 160px;
+ height: 10px;
+ position: absolute;
+ z-index: 1;
+ right: 20px;
+ top: 5px;
+ background: #2ecc71;
+}
+ .green::-webkit-slider-thumb {
+ background: #27ae60;
+}
+ .green::-webkit-slider-thumb:after {
+ background: #2ecc71;
+}
+ .red::-webkit-slider-thumb {
+ background: #c0392b;
+}
+ .red::-webkit-slider-thumb:after {
+ background: #e74c3c;
+}
+ .blue::-webkit-slider-thumb {
+ background: #2980b9;
+}
+ .blue::-webkit-slider-thumb:after {
+ background: #3498db;
+}
+ .orange::-webkit-slider-thumb {
+ background: #d35400;
+}
+ .orange::-webkit-slider-thumb:after {
+ background: #e67e22;
+}
+ .purple::-webkit-slider-thumb {
+ background: #8e44ad;
+}
+ .purple::-webkit-slider-thumb:after {
+ background: #9b59b6;
+}
+ .gray::-webkit-slider-thumb {
+ background: #7f8c8d;
+}
+ .gray::-webkit-slider-thumb:after {
+ background: #95a5a6;
+}
+</style>
+<link href="http://www.cssscript.com/wp-includes/css/sticky.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<div id="css-script-menu">
+  <div class="css-script-center">
+    <ul>
+      <li><a href="http://www.cssscript.com/simple-flat-html5-and-css3-range-slider/">Download</a></li>
+      <li><a href="http://www.cssscript.com/">Back To CSS Script</a></li>
+    </ul>
+    <div class="css-script-ads"><script type="text/javascript"><!--
+google_ad_client = "ca-pub-2783044520727903";
+/* CSSScript Demo Page */
+google_ad_slot = "3025259193";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script> 
+      <script type="text/javascript"
+src="//pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></div>
+    <div class="css-script-clear"></div>
+  </div>
+</div>
+<h1 style="margin-top:150px;">UI Range Sliders</h1>
+<input type="range" value="20" class="green"/>
+<input type="range" value="31" class="red"/>
+<input type="range" value="42" class="blue"/>
+<input type="range" value="53" class="orange"/>
+<input type="range" value="64" class="purple"/>
+<input type="range" value="75" class="gray"/>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-46156385-1', 'cssscript.com');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>
