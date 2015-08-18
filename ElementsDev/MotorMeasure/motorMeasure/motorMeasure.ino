@@ -67,6 +67,8 @@
 #define SAFETY_DISTANCE         10 //safety distance from the edges in numOfmagnets
 #define DELAY_BETWEEN_RUNNINGS  2000 //time to wait between runnings in [ms]
 #define MAXIMUM_REQUESTED_VELOCITY 3.5 //the maximum velocity that can be requested on the webpage
+#define MAXIMUM_ALLOWED_CURRENT_OUTPUT  900
+#define MINIMUM_ALLOWED_CURRENT_OUTPUT  90
 
 //XBEE
 #define XBEE_DATA_RATE 9600
@@ -148,7 +150,7 @@
 #define FINITE_WAITING_TIMEOUT     40000 //finite timeout. after this time the system goes back to idle
 
 //Motor State description variables
-boolean DIR                         = 0; // 1 - clockwise, 0 - counter-clockwise
+boolean DIR                         = 1; // 1 - clockwise, 0 - counter-clockwise
 volatile unsigned int Revolutions   = 0; //number of revolutions. global variable needs to be defined as volatile in order to be used by interrupts
 volatile unsigned int RunLength     = 0; //this variable counts revolutions during a run and compare it to lTrack [Revolutions]. It also delivers the length to lTrack during calibration
 unsigned int lTrack                 = 0; //stores the length of the track (= distance between motors). needs to be written to the EEPROM in the future
@@ -232,6 +234,7 @@ float vel = 0;
 float delta = 0;
 byte desiredRev = 0;
 float velocity = 1;
+bool safe = true; 
 
 //=====================SETUP=============================================
 void setup(){
@@ -293,11 +296,6 @@ void setup(){
 
   randomSeed(analogRead(RANDOM_NOISE_PIN));
 
-  vel = 0.6;
-  byte temp1 = convertVelToMagnets(vel);
-  float temp2 = convertMagnetsToPWM(temp1);
-  Serial2.print("PID coeff: "); Serial2.print(" Kp: "); Serial2.print(Kp); Serial2.print(" Ki: "); Serial2.print(Ki); Serial2.print(" Kd: "); Serial2.println(Kd);
-  Serial2.print("desired #magnets: "); Serial2.print(temp1); Serial2.print(" desired PWM is: "); Serial2.println(temp2);
 }
 
 //=====================MAIN=============================================
@@ -308,26 +306,26 @@ void loop(){
   //Do some general tasks
   CurrentTime = millis(); //main timer for all system purposes
   
-  if(CurrentTime - PreviousTimeForGeneralTasks > 10 * NOMINAL_TRACK_LENGTH / velocity){ 
+  if(CurrentTime - PreviousTimeForGeneralTasks > 20000){ 
     PreviousTimeForGeneralTasks = CurrentTime;
     M = !M ;
+    safe = true;
   }
 
   if(M){
-    vel = 0.6;
-    velocity = vel;
+    vel = 0.4;
     desiredIn = (double) convertMagnetsToPWM(convertVelToMagnets(vel));
   }
   else{ 
     coastMotor();
-    vel = 0;
-    velocity = 1;
-    desiredIn = vel;
+    desiredIn = 0;
+    sysIn = 0;
+    myPID.Compute();
   }
   
   //current sensor
   sensorValue = analogRead(CSPin);  
-  current = ( map(sensorValue, 0, 1023, 0, 5) - 2.5) / 0.066;
+  //current = ( map(sensorValue, 0, 1023, 0, 5) - 2.5) / 0.066;
 
   if(checkTime(VMEASURE_SAMPLE_TIME)){  
     MeasureVelocityInPWM(VMEASURE_SAMPLE_TIME);
@@ -335,8 +333,14 @@ void loop(){
     myPID.Compute();
     //  sysIn = desiredIn;
       
+      if(safe){
       movemotor(DIR,sysIn,MAX_PWM_VALUE);
+    }
+    else{
+      Serial2.println("SAFETY MECHANISM HAS BEEN TURNED ON");
+    }
       SerialProcess();
+    
     }
 
 
@@ -350,7 +354,7 @@ void SerialProcess(){
   Serial2.print(float(CurrentTime / 1000));
 
   //Serial2.print(" In: ");
-  Serial2.print(" ");
+  /*Serial2.print(" ");
   Serial2.print(desiredIn);
 
   //Serial2.print(" vAngular: ");
@@ -360,31 +364,59 @@ void SerialProcess(){
   //Serial2.print(" vLinear ");
   Serial2.print(" ");
   Serial2.print(vLinear);
-
+*/
   Serial2.print(" ");
   //Serial2.print(" sysIn: ");
-  Serial2.print(sysIn);   
+   Serial2.print(sysIn);   /*
 
   //Serial2.print(" measuredIn: ");
   Serial2.print(" ");
-  Serial2.print(measuredIn); 
+  Serial2.print(measuredIn);*/ 
 
   //Serial2.print(" Sensor: ");
   Serial2.print(" ");
   Serial2.print(sensorValue); 
 
   //Serial2.print(" current: ");
-  Serial2.print(" ");
-  Serial2.print(current);
+  //Serial2.print(" ");
+  //Serial2.print(current);
 
-  Serial2.println("");
+  Serial2.println();
 }
 
-boolean movemotor(boolean DIR, int pwmH, int pwmL){ //set motor velocity and direction
+boolean movemotor(boolean DIR, float pwmH, float pwmL){ //set motor velocity and direction
+  
+  if(pwmH > 255 || pwmL > 255){  
+    pwmH = 0;
+    return 1;
+    } //illigal values
+  
+  byte pwmHround = mround(pwmH);
+  byte pwmLround = mround(pwmL);
+  
+  //Serial2.print(pwmHround); Serial2.print(" "); Serial2.println(pwmHround); 
 
   digitalWrite(dirPin,DIR); //maybe *255?
-  analogWrite(pwmHPin, pwmH);
-  analogWrite(pwmLPin, pwmL);
+  analogWrite(pwmHPin, pwmHround);
+  analogWrite(pwmLPin, pwmLround);
+
+  //check current sensor - safety check
+  sensorValue = analogRead(CSPin);  
+
+  if(sensorValue > MAXIMUM_ALLOWED_CURRENT_OUTPUT || sensorValue < MINIMUM_ALLOWED_CURRENT_OUTPUT){
+    coastMotor();
+    safe = false;
+    FSM_State = ZERO_STATE;
+      OneTimeFlag = true;
+      if(MS){ 
+        sysMode = MS_IDLE;
+        //sendXBEEmsg(STOP_MOTOR);
+      }
+      else{ sysMode = SL_IDLE;}
+    
+    Serial2.print(float(CurrentTime / 1000)); Serial2.print(" SAFETY WARNING: Stopping due to sensor value = "); Serial2.println(sensorValue);
+    return 1;
+  }
   return 0;
 }
 
